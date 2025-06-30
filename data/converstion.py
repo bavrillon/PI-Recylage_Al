@@ -2,7 +2,7 @@ import pandas as pd
 import sqlite3
 
 # Nom de ton fichier Excel
-excel_file = "C:/Users/GrégoireBERAUD/hackaton/PI-Recylage_Al/data/data.xlsx"
+excel_file = "data.xlsx"
 
 # Charger le fichier Excel
 xls = pd.ExcelFile(excel_file)
