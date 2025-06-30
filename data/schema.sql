@@ -57,7 +57,7 @@ CREATE TABLE [recycling_costs] (
 
 CREATE TABLE [currency] (
   [currency_id] INTEGER PRIMARY KEY,
-  [currency_name] TEXT UNIQUE NOT NULL
+  [currency_name] TEXT UNIQUE NOT NULL,
   [USD] REAL NOT NULL,
 );
 CREATE TABLE [external_scrap] (

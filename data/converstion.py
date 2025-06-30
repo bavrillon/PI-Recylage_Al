@@ -1,24 +1,20 @@
-import pandas as pd
 import sqlite3
 import os
+# Nom du fichier SQL à importer
+sql_file = os.path.join(os.path.dirname(__file__),'schema.sql') 
 
-# Chemin vers le fichier Excel
-excel_file = os.path.join(os.path.dirname(__file__), "data.xlsx")
+# Nom du fichier SQLite à créer
+db_file = 'data.db'
 
+# Lire le contenu du fichier SQL
+with open(sql_file, 'r', encoding='utf-8') as f:
+    sql_script = f.read()
 
-# Charger le fichier Excel
-xls = pd.ExcelFile(excel_file)
-
-# Créer une base de données SQLite
-conn = sqlite3.connect("data.db")
-
-# Pour chaque feuille, créer une table
-for sheet_name in xls.sheet_names:
-    df = pd.read_excel(xls, sheet_name=sheet_name)
-    # Nettoyer le nom de la feuille pour l'utiliser comme nom de table
-    table_name = sheet_name.strip().replace(" ", "_")
-    df.to_sql(table_name, conn, if_exists="replace", index=False)
-    print(f"Feuille '{sheet_name}' importée en table '{table_name}'.")
-
+# Créer une base de données SQLite et exécuter le script
+conn = sqlite3.connect(db_file)
+cursor = conn.cursor()
+cursor.executescript(sql_script)
+conn.commit()
 conn.close()
-print("Conversion terminée.")
+
+print(f"La base de données SQLite a été créée avec succès dans le fichier '{db_file}'.")
