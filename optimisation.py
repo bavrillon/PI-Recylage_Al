@@ -28,7 +28,16 @@ def optimise_co2(id_site, id_alloy, id_scrap):
 def optimise_cost(id_alloy, scrap?):
     pass
 
-
-
 optimise_co2(id_alloy, scrap?)
 optimise_raw_material(id_alloy, scrap?)
+
+
+
+def get_raw_materials_site(id_site):
+    db = sqlite3.connect('data/data.db')
+    cursor = db.cursor()
+    request = "SELECT id_raw_material FROM raw_materials WHERE site...."
+    cursor.execute(request)
+    rows = cursor.fetchall()
+    # suite...
+    conn.close()
