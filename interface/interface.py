@@ -23,15 +23,21 @@ with c2:
     ID_SCRAP = external_scrap['scrap_name']
 
 
-if st.checkbox ('Show data'):
+if st.checkbox ('Show scraps'):
     edited_external_scraps = st.data_editor(external_scraps, num_rows="dynamic")
     external_scraps = edited_external_scraps
+if st.checkbox ('Show alloys'):
     edited_alloys = st.data_editor(alloys, num_rows="dynamic")
     alloys = edited_alloys
+if st.checkbox ('Show materials'):
     edited_raw_materials = st.data_editor(raw_materials, num_rows="dynamic")
     raw_materials = edited_raw_materials
+if st.checkbox ('Show recycling costs'):
     edited_recycling_costs = st.data_editor(recycling_costs, num_rows="dynamic")
     recycling_costs = edited_recycling_costs
+if st.checkbox ('Show currencies'):
+    edited_currencies = st.data_editor(currencies, num_rows="dynamic")
+    currencies = edited_currencies
 
 if st.button('Optimize'):
     scrap_column, no_scrap_column = st.columns(2)
