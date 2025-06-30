@@ -1,5 +1,5 @@
 import sqlite3
-<<<<<<< HEAD
+
 
 conn = sqlite3.connect('data.db')
 cursor = conn.cursor()
@@ -22,6 +22,4 @@ for idx, (rowid,) in enumerate(rows, start=1):
 
 conn.commit()
 conn.close()
-=======
-conn = sqlite3.connect('data.db')
->>>>>>> 3ca1aa19a374386c403e706eeab4f15a2ddf8188
+
