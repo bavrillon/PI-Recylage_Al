@@ -2,8 +2,15 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
+import sqlite3
 
 st.title("Test Interface Elyes")
+
+db_path = st.secrets["connections.data_db"]["db_path"]
+conn = sqlite3.connect(db_path)
+curr = conn.cursor()
+st.write("Database connection established successfully!")
+
 uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx"])
 
 if uploaded_file is not None:
@@ -37,6 +44,6 @@ if uploaded_file is not None:
         plt.xlabel(x_col)
         plt.ylabel(y_col)
         st.pyplot(plt)
-        
+
 else:
     st.write("Please upload a CSV or Excel file to proceed.")
