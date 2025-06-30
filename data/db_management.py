@@ -17,7 +17,14 @@ class Database:
         return sqlite3.connect(self.file_name)
 
     def get_elements(self):
-        pass
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(composition)")
+        columns_info = cursor.fetchall()
+        exclude = {"composition_id"}
+        elements = [col[1] for col in columns_info if col[1] not in exclude]
+        conn.close()
+        return elements
 
     def get_raw_materials(self):
         """
@@ -116,8 +123,6 @@ class Database:
             raise ValueError("Raw material not found")
         return list(row)
     
-    def get_cost_scrap(self, id_scrap):
-        pass
 
     def get_cost_raw_materials(self, id_raw_material):
         pass
@@ -155,17 +160,7 @@ class Database:
         conn.close()
         return float(cost) / rate
     
-    def get_elements_from_alloy_table(self):
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute("PRAGMA table_info(composition)")
-        columns_info = cursor.fetchall()
-        exclude = {"composition_id"}
-        elements = [col[1] for col in columns_info if col[1] not in exclude]
-        conn.close()
-        return elements
-    
-    def get_cost_scrap(self, id_scrap):
+    #def get_cost_scrap(self, id_scrap):
         """
         returns the cost of a scrap in USD for a given site.
         """
