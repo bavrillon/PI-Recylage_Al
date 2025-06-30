@@ -1,14 +1,14 @@
 import streamlit as st
 
 conn = st.connection("data_db",type="sql")
-sites = conn.query("SELECT * FROM site") #les données à récupérer en pandas
+sites = conn.query("SELECT * FROM site") #returns a DataFrame
 alloys = conn.query("SELECT * FROM alloy")
 raw_materials = conn.query("SELECT * FROM raw_material")
 recycling_costs = conn.query("SELECT * FROM recycling_costs")
 currencies = conn.query("SELECT * FROM currency")
 external_scraps = conn.query("SELECT * FROM external_scrap")
 
-st.markdown("Optimization of aluminium alloys")
+st.header("Optimization of aluminium alloys")
 
 c1, c2 = st.columns(2)
 
@@ -25,7 +25,13 @@ with c2:
 
 if st.checkbox ('Show data'):
     edited_external_scraps = st.data_editor(external_scraps, num_rows="dynamic")
-    data = edited_external_scraps
+    external_scraps = edited_external_scraps
+    edited_alloys = st.data_editor(alloys, num_rows="dynamic")
+    alloys = edited_alloys
+    edited_raw_materials = st.data_editor(raw_materials, num_rows="dynamic")
+    raw_materials = edited_raw_materials
+    edited_recycling_costs = st.data_editor(recycling_costs, num_rows="dynamic")
+    recycling_costs = edited_recycling_costs
 
 if st.button('Optimize'):
     scrap_column, no_scrap_column = st.columns(2)
