@@ -1,6 +1,6 @@
 import streamlit as st
 
-conn = st.connection("database",type="sql") #il faut créer un fichier secrets.toml !!!
+conn = st.connection("data_db",type="sql") #il faut créer un fichier secrets.toml !!!
 data = conn.query("SELECT * FROM site, alloy, raw_material, recycling_costs, currency, external_scrap") #les données à récupérer en pandas
 
 st.markdown("Optimization of aluminium alloys")
@@ -20,7 +20,7 @@ with c2:
 side=st.sidebar
 side.text_input("What scrap do you want to add?")
 if side.button("Add"):
-    conn.query("...") #rajouter la chute à la database
+    conn.query("INSERT INTO data VALUES ... ") #rajouter la chute à la database
 
 #faire pareil pour tous les paramètres
 
