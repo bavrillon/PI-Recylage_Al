@@ -1,8 +1,10 @@
 import pandas as pd
 import sqlite3
+import os
 
-# Nom de ton fichier Excel
-excel_file = "data.xlsx"
+# Chemin vers le fichier Excel
+excel_file = os.path.join(os.path.dirname(__file__), "data.xlsx")
+
 
 # Charger le fichier Excel
 xls = pd.ExcelFile(excel_file)
