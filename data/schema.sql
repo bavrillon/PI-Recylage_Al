@@ -1,16 +1,19 @@
-CREATE TABLE [site] (
-  [site_id] INTEGER PRIMARY KEY,
-  [site_code] TEXT NOT NULL,
+CREATE TABLE [currency] (
+  [currency_id] INTEGER PRIMARY KEY,
   [name] TEXT UNIQUE NOT NULL,
-  [premium_per_t] REAL NOT NULL,
-  [currency] TEXT NOT NULL,
-  FOREIGN KEY ([currency]) REFERENCES [currency] ([currency_name])
+  [USD] REAL NOT NULL
 );
 
-CREATE TABLE [alloy] (
-  [alloy_id] INTEGER PRIMARY KEY,
-  [site_alloys] TEXT NOT NULL,
-  [alloy] TEXT UNIQUE NOT NULL,
+CREATE TABLE [site] (
+  [site_id] INTEGER PRIMARY KEY,
+  [code] TEXT UNIQUE NOT NULL,
+  [name] TEXT UNIQUE NOT NULL,
+  [premium_per_t] REAL NOT NULL,
+  [currency_id] INTEGER NOT NULL,
+  FOREIGN KEY ([currency_id]) REFERENCES [currency] ([currency_id])
+);
+CREATE TABLE [composition] (
+  [composition_id] INTEGER PRIMARY KEY,
   [Si] REAL NOT NULL,
   [Fe] REAL NOT NULL,
   [Cu] REAL NOT NULL,
@@ -18,33 +21,27 @@ CREATE TABLE [alloy] (
   [Mg] REAL NOT NULL,
   [Cr] REAL NOT NULL,
   [Zn] REAL NOT NULL,
-  [Ti] REAL NOT NULL,
-  FOREIGN KEY ([Si]) REFERENCES [raw_material]([Si]),
-  FOREIGN KEY ([Fe]) REFERENCES [raw_material]([Fe]),
-  FOREIGN KEY ([Cu]) REFERENCES [raw_material]([Cu]),
-  FOREIGN KEY ([Mn]) REFERENCES [raw_material]([Mn]),
-  FOREIGN KEY ([Mg]) REFERENCES [raw_material]([Mg]),
-  FOREIGN KEY ([Cr]) REFERENCES [raw_material]([Cr]),
-  FOREIGN KEY ([Zn]) REFERENCES [raw_material]([Zn]),
-  FOREIGN KEY ([Ti]) REFERENCES [raw_material]([Ti]),
-  FOREIGN KEY ([site_alloys]) REFERENCES [site] ([site_code])
+  [Ti] REAL NOT NULL
+);
+h
+CREATE TABLE [alloy] (
+  [alloy_id] INTEGER PRIMARY KEY,
+  [site_id] INTEGER NOT NULL,
+  [name] TEXT UNIQUE NOT NULL,
+  [composition_id] INTEGER NOT NULL,
+  FOREIGN KEY ([site_id]) REFERENCES [site] ([site_id]),
+  FOREIGN KEY ([composition_id]) REFERENCES [composition] ([composition_id])
 );
 
 CREATE TABLE [raw_material] (
   [raw_material_id] INTEGER PRIMARY KEY,
-  [Si] REAL NOT NULL,
-  [Fe] REAL NOT NULL,
-  [Cu] REAL NOT NULL,
-  [Mn] REAL NOT NULL,
-  [Mg] REAL NOT NULL,
-  [Cr] REAL NOT NULL,
-  [Zn] REAL NOT NULL,
-  [Ti] REAL NOT NULL,
-  [cost_by_t] REAL NOT NULL,
+  [composition_id] INTEGER NOT NULL,
+  [cost_per_t] REAL NOT NULL,
   [premium] BOOLEAN NOT NULL,
   [currency] TEXT NOT NULL,
-  [t_CO2/t] REAL NOT NULL,
-  FOREIGN KEY ([currency]) REFERENCES [currency] ([currency_name])
+  [t_CO2_per_t] REAL NOT NULL,
+  FOREIGN KEY ([currency]) REFERENCES [currency] ([currency_name]),
+  FOREIGN KEY ([composition_id]) REFERENCES [composition] ([composition_id])
 );
 
 CREATE TABLE [recycling_costs] (
@@ -55,35 +52,4 @@ CREATE TABLE [recycling_costs] (
   FOREIGN KEY ([site]) REFERENCES [site] ([site_code])
 );
 
-CREATE TABLE [currency] (
-  [currency_id] INTEGER PRIMARY KEY,
-  [currency_name] TEXT UNIQUE NOT NULL,
-  [USD] REAL NOT NULL,
-);
-CREATE TABLE [external_scrap] (
-  [external_scrap_id] INTEGER PRIMARY KEY,
-  [scrap_name] TEXT NOT NULL,
-  [Si] REAL NOT NULL,
-  [Fe] REAL NOT NULL,
-  [Cu] REAL NOT NULL,
-  [Mn] REAL NOT NULL,
-  [Mg] REAL NOT NULL,
-  [Cr] REAL NOT NULL,
-  [Zn] REAL NOT NULL,
-  [Ti] REAL NOT NULL,
-  [shape] TEXT NOT NULL,
-  [scrap_purchasing_cost_per_t] REAL NOT NULL,
-  [transportation_cost_per_t] REAL NOT NULL,
-  [currency] TEXT NOT NULL,
-  FOREIGN KEY ([currency]) REFERENCES [currency] ([currency_name]),
-  FOREIGN KEY ([Si]) REFERENCES [raw_material]([Si]),
-  FOREIGN KEY ([Fe]) REFERENCES [raw_material]([Fe]),
-  FOREIGN KEY ([Cu]) REFERENCES [raw_material]([Cu]),
-  FOREIGN KEY ([Mn]) REFERENCES [raw_material]([Mn]),
-  FOREIGN KEY ([Mg]) REFERENCES [raw_material]([Mg]),
-  FOREIGN KEY ([Cr]) REFERENCES [raw_material]([Cr]),
-  FOREIGN KEY ([Zn]) REFERENCES [raw_material]([Zn]),
-  FOREIGN KEY ([Ti]) REFERENCES [raw_material]([Ti]),
-
-);
 
