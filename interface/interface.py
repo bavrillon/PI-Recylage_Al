@@ -1,7 +1,7 @@
 import streamlit as st
 
-conn = st.connection("database",type="sql") #il faut mettre le bon nom je pense, et il faut créer un fichier secrets.toml
-data = ... #les données à récupérer en pandas
+conn = st.connection("database",type="sql") #il faut créer un fichier secrets.toml !!!
+data = conn.query("SELECT * FROM site, alloy, raw_material, recycling_costs, currency, external_scrap") #les données à récupérer en pandas
 
 st.markdown("Optimization of aluminium alloys")
 
