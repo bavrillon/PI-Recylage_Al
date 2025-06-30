@@ -12,6 +12,7 @@ CREATE TABLE [site] (
   [currency_id] INTEGER NOT NULL,
   FOREIGN KEY ([currency_id]) REFERENCES [currency] ([currency_id])
 );
+
 CREATE TABLE [composition] (
   [composition_id] INTEGER PRIMARY KEY,
   [Si] REAL NOT NULL,
@@ -23,7 +24,7 @@ CREATE TABLE [composition] (
   [Zn] REAL NOT NULL,
   [Ti] REAL NOT NULL
 );
-h
+
 CREATE TABLE [alloy] (
   [alloy_id] INTEGER PRIMARY KEY,
   [site_id] INTEGER NOT NULL,
