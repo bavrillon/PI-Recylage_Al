@@ -6,15 +6,11 @@ import sqlite3
 
 st.title("Test Interface Elyes")
 
-db_path = st.secrets["connections.data_db"]["db_path"]
-conn = sqlite3.connect(db_path)
-curr = conn.cursor()
-st.write("Database connection established successfully!")
 
 uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx"])
 
 if uploaded_file is not None:
-    df = pd.read_csv(uploaded_file) if uploaded_file.name.endswith('.csv') else pd.read_excel(uploaded_file)
+    df = pd.read_csv(uploaded_file, sep=";") if uploaded_file.name.endswith('.csv') else pd.read_excel(uploaded_file)
     st.write("DataFrame loaded successfully!")
 
     st.subheader("Data Preview")
