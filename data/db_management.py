@@ -3,6 +3,7 @@ import sqlite3
 conn = sqlite3.connect('data.db')
 cursor = conn.cursor()
 
+##### Rajoute la colonne id dans la table alloy #####
 # Vérifier si la colonne 'id' existe déjà
 cursor.execute("PRAGMA table_info(alloy);")
 columns = [col[1] for col in cursor.fetchall()]
