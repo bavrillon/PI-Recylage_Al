@@ -37,9 +37,9 @@ if st.checkbox ('Show data'):
 if st.button('Optimize CO2'):
     scrap_column, no_scrap_column = st.columns(2)
     with scrap_column:
-        alloy = st.selectbox('Which alloy?', data['alloy']['alloy_name'])
+        alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
         'You selected:', alloy
-        ID_ALLOY = data[alloy]['id_alloy']
+        ID_ALLOY = alloys['id_alloy']
         st.write("Optimizing with scrap...")
         # Call the optimization function here
         optimised_composition = optimise_co2(ID_SITE, ID_ALLOY, ID_SCRAP)
