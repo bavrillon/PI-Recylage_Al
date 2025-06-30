@@ -1,7 +1,7 @@
 import streamlit as st
 
-conn = st.connection("data",type="sql") #il faut mettre le bon nom je pense, et il faut créer un fichier secrets.toml
-data = ... #les données à récupérer en pandas
+conn = st.connection("database",type="sql") #il faut créer un fichier secrets.toml !!!
+data = conn.query("SELECT * FROM site, alloy, raw_material, recycling_costs, currency, external_scrap") #les données à récupérer en pandas
 
 st.markdown("Optimization of aluminium alloys")
 
@@ -20,11 +20,13 @@ with c2:
 side=st.sidebar
 side.text_input("What scrap do you want to add?")
 if side.button("Add"):
-    ... #rajouter la chute à la database
+    conn.query("...") #rajouter la chute à la database
+
+#faire pareil pour tous les paramètres
 
 if st.checkbox ('Show data'):
-    data_visualization = conn.query("SELECT * FROM ...") #les données à visualiser dans un tableau, il faut le nom de la table sql
-    data_visualization
+    data_visualization = conn.query("SELECT * FROM alloy, raw_material, recycling_costs, currency") #les données à visualiser dans un tableau
+    st.dataframe(data_visualization)
 
 if st.button('Optimize'):
     scrap_column, no_scrap_column = st.columns(2)
