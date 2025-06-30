@@ -1,6 +1,8 @@
 import streamlit as st
 from optimisation import *
 
+print(composition_elements)
+
 conn = st.connection("data_db",type="sql")
 sites = conn.query("SELECT * FROM site") #returns a DataFrame
 alloys = conn.query("SELECT * FROM alloy")
