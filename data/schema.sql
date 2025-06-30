@@ -75,7 +75,7 @@ CREATE TABLE [external_scrap] (
   [scrap_purchasing_cost_per_t] REAL NOT NULL,
   [transportation_cost_per_t] REAL NOT NULL,
   [currency] TEXT NOT NULL,
-  FOREIGN KEY ([currency]) REFERENCES [currency] ([currency_name])
+  FOREIGN KEY ([currency]) REFERENCES [currency] ([currency_name]),
   FOREIGN KEY ([Si]) REFERENCES [raw_material]([Si]),
   FOREIGN KEY ([Fe]) REFERENCES [raw_material]([Fe]),
   FOREIGN KEY ([Cu]) REFERENCES [raw_material]([Cu]),
