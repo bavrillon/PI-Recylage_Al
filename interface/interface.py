@@ -7,7 +7,7 @@ alloys = conn.query("SELECT * FROM alloy")
 raw_materials = conn.query("SELECT * FROM raw_material")
 recycling_costs = conn.query("SELECT * FROM recycling_costs")
 currencies = conn.query("SELECT * FROM currency")
-external_scraps = conn.query("SELECT * FROM external_scrap")
+composition = conn.query("SELECT * FROM composition")
 
 st.header("Optimization of aluminium alloys")
 
@@ -36,9 +36,7 @@ ti = c13.number_input('Ti')
 
 #ajouter les données input à la db scrap, en la vidant avant
 
-if st.checkbox ('Show scraps'):
-    edited_external_scraps = st.data_editor(external_scraps, num_rows="dynamic")
-    external_scraps = edited_external_scraps
+
 if st.checkbox ('Show alloys'):
     edited_alloys = st.data_editor(alloys, num_rows="dynamic")
     alloys = edited_alloys
