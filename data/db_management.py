@@ -75,8 +75,3 @@ def get_cost_raw_materials(id_site, id_raw_material):
         rate = float(rate_row[0])
     conn.close()
     return float(cost) / rate
-    
-
-
-
-
