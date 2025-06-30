@@ -26,6 +26,12 @@ with c2:
 if st.checkbox ('Show data'):
     edited_external_scraps = st.data_editor(external_scraps, num_rows="dynamic")
     external_scraps = edited_external_scraps
+    edited_alloys = st.data_editor(alloys, num_rows="dynamic")
+    alloys = edited_alloys
+    edited_raw_materials = st.data_editor(raw_materials, num_rows="dynamic")
+    raw_materials = edited_raw_materials
+    edited_recycling_costs = st.data_editor(recycling_costs, num_rows="dynamic")
+    recycling_costs = edited_recycling_costs
 
 if st.button('Optimize'):
     scrap_column, no_scrap_column = st.columns(2)
