@@ -1,4 +1,4 @@
-id_alloy;name;Si;Fe;Cu;Mn;Mg;Cr;Zn;Ti;cost_by_t;premium;currency;t_CO2/t
+raw_material_id;name;Si;Fe;Cu;Mn;Mg;Cr;Zn;Ti;cost_by_t;premium;currency;t_CO2/t
 1;Si;99;1;;;;;;;2800;0;USD;1
 2;Fe;2;98;;;;;;;313;0;USD;5
 3;Cu ;;;100;;;;;;8750;0;USD;0,5
