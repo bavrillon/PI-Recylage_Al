@@ -21,7 +21,7 @@ CREATE TABLE [alloy] (
   FOREIGN KEY ([site_alloys]) REFERENCES [site] ([site_code])
 );
 
-CREATE TABLE [alloy_compo] (
+CREATE TABLE [raw_material] (
   [alloy_compo_id] INTEGER PRIMARY KEY,
   [alloy_id] INTEGER NOT NULL,
   [compo_id] INTEGER NOT NULL,
