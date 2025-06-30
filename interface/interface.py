@@ -1,5 +1,5 @@
 import streamlit as st
-from optimisation import optimise_co2
+from optimisation import *
 
 conn = st.connection("data_db",type="sql")
 sites = conn.query("SELECT * FROM site") #returns a DataFrame
@@ -40,13 +40,36 @@ if st.checkbox ('Show currencies'):
     edited_currencies = st.data_editor(currencies, num_rows="dynamic")
     currencies = edited_currencies
 
-if st.button('Optimize CO2'):
+if st.button('Optimize CO2 with/without scrap'):
     scrap_column, no_scrap_column = st.columns(2)
     with scrap_column:
         alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
         'You selected:', alloy
         ID_ALLOY = alloys['id_alloy']
         st.write("Optimizing with scrap...")
-        # Call the optimization function here
-        optimised_composition = optimise_co2(ID_SITE, ID_ALLOY, ID_SCRAP)
+        optimised_composition = optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_composition}")
+    with no_scrap_column:
+        alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
+        'You selected:', alloy
+        ID_ALLOY = alloys['id_alloy']
+        st.write("Optimizing without scrap...")
+        optimised_composition = optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+        st.write(f"Optimized composition: {optimised_composition}")
+
+if st.button('Optimize cost with/without scrap'):
+    cost_column, no_cost_column = st.columns(2)
+    with cost_column:
+        alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
+        'You selected:', alloy
+        ID_ALLOY = alloys['id_alloy']
+        st.write("Optimizing cost with scrap...")
+        optimised_cost = optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+        st.write(f"Optimized composition: {optimised_cost}")
+    with no_cost_column:
+        alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
+        'You selected:', alloy
+        ID_ALLOY = alloys['id_alloy']
+        st.write("Optimizing cost without scrap...")
+        optimised_cost = optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
+        st.write(f"Optimized composition: {optimised_cost}")
