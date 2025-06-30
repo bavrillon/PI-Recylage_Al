@@ -17,4 +17,5 @@ if st.checkbox ('Show data'):
     data_visualization = ... #les données à visualiser dans un tableau
     data_visualization
 
-st.button('Optimize')
+if st.button('Optimize'):
+    scrap_column, no_scrap_column = st.column(2)
