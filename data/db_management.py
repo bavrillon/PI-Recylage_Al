@@ -84,6 +84,7 @@ class Database:
         row = cursor.fetchone()
         if row is None:
             conn.close()
+<<<<<<< HEAD
             raise ValueError("Raw material not found")
         cost, currency = row
 
@@ -237,3 +238,9 @@ class Database:
 
 
 
+=======
+            raise ValueError("Currency not found")
+        rate = float(rate_row[0])
+    conn.close()
+    return float(cost) / rate
+>>>>>>> 653022eb82e3d83fc75893afcfa7ca975cba196e
