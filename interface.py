@@ -9,26 +9,36 @@ alloys = conn.query("SELECT * FROM alloy")
 raw_materials = conn.query("SELECT * FROM raw_material")
 recycling_costs = conn.query("SELECT * FROM recycling_costs")
 currencies = conn.query("SELECT * FROM currency")
-external_scraps = conn.query("SELECT * FROM external_scrap")
+composition = conn.query("SELECT * FROM composition")
 
 st.header("Optimization of aluminium alloys")
 
-c1, c2 = st.columns(2)
 
-with c1:
-    site = st.selectbox('Which factory?', sites['name'])
-    'You selected:', site
-    ID_SITE = site['site_code']
+site = st.selectbox('Which factory?', sites['name'])
+'You selected:', site
+ID_SITE = site['site_code']
 
-with c2:
-    external_scrap = st.selectbox('Which scrap?', external_scraps['scrap_name'])
-    'You selected:', external_scrap
-    ID_SCRAP = external_scrap['scrap_name']
+c1, c2, c3, c4, c5 = st.columns(5)
+scrap_name = c1.text_input('Name of the scrap')
+shape = c2.text_input('Shape of the scrap')
+scrap_purchasing_cost_per_t = c3.text_input('Purchasing cost of the scrap (per t)')
+transportation_cost_per_t = c4.text_input('Transportation cost of the scrap (per t)')
+currency = c5.text_input('Currency of the costs')
+
+st.write('Choose the composition of the scrap:')
+c6, c7, c8, c9, c10, c11, c12, c13 = st.columns(8)
+si = c6.number_input('Si')
+fe = c7.number_input('Fe')
+cu = c8.number_input('Cu')
+mn = c9.number_input('Mn')
+mg = c10.number_input('Mg')
+cr = c11.number_input('Cr')
+zn = c12.number_input('Zn')
+ti = c13.number_input('Ti')
+
+#ajouter les données input à la db scrap, en la vidant avant
 
 
-if st.checkbox ('Show scraps'):
-    edited_external_scraps = st.data_editor(external_scraps, num_rows="dynamic")
-    external_scraps = edited_external_scraps
 if st.checkbox ('Show alloys'):
     edited_alloys = st.data_editor(alloys, num_rows="dynamic")
     alloys = edited_alloys
