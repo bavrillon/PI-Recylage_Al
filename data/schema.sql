@@ -8,7 +8,17 @@ CREATE TABLE [site] (
 
 CREATE TABLE [alloy] (
   [alloy_id] INTEGER PRIMARY KEY,
-  [name] TEXT NOT NULL
+  [site_alloys] TEXT NOT NULL,
+  [alloy] TEXT UNIQUE NOT NULL,
+  [Si] REAL NOT NULL,
+  [Fe] REAL NOT NULL,
+  [Cu] REAL NOT NULL,
+  [Mn] REAL NOT NULL,
+  [Mg] REAL NOT NULL,
+  [Cr] REAL NOT NULL,
+  [Zn] REAL NOT NULL,
+  [Ti] REAL NOT NULL,
+  FOREIGN KEY ([site_alloys]) REFERENCES [site] ([site_code])
 );
 
 CREATE TABLE [alloy_compo] (
