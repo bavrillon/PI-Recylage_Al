@@ -1,30 +1,82 @@
 import sqlite3
 
-conn = sqlite3.connect('data.db')
-cursor = conn.cursor()
+DB_PATH = "data.db"
 
-# Récupérer la liste des tables
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-tables = [row[0] for row in cursor.fetchall()]
+def get_connection() :
+    """
+    open a connection to the SQlite data.db
+    returns:
+        SQlite connection object
+    """
+    return sqlite3.connect(DB_PATH)
 
-for table in tables:
-    print(f"Traitement de la table : {table}")
-    
-    # Vérifier si la colonne 'id' existe déjà
-    cursor.execute(f"PRAGMA table_info({table});")
-    columns = [col[1] for col in cursor.fetchall()]
-    
-    if 'id' not in columns:
-        cursor.execute(f"ALTER TABLE {table} ADD COLUMN id INTEGER;")
-        print(f"Colonne 'id' ajoutée à la table {table}.")
-        
-        # Remplir la colonne id avec des valeurs uniques
-        cursor.execute(f"SELECT rowid FROM {table}")
-        rows = cursor.fetchall()
-        for idx, (rowid,) in enumerate(rows, start=1):
-            cursor.execute(f"UPDATE {table} SET id = ? WHERE rowid = ?", (idx, rowid))
+
+def get_alloy_elements():
+    """
+    retrieves the SI, Fe, CU, Mn, Mg, Zn, Ti columns from the table alloy"
+    returns:
+        list[dict]
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    query = (
+        "SELECT SI, Fe, CU, Mn, Mg, Zn, Ti FROM alloy"
+    )
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    columns = ["SI", "Fe", "Cu", "Mn", "Mg", "Cr", "Zn", "Ti"]
+    result = [dict(zip(columns, row)) for row in rows]
+    conn.close()
+    return result
+
+
+def get_raw_materials_site(id_site):
+    """
+    returns:
+        list[str]: list of all raw material names.
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT name FROM raw_material")
+    rows = cursor.fetchall()
+    conn.close()
+    return [row[0] for row in rows]
+
+
+def get_cost_raw_materials(id_site, id_raw_material):
+    """
+    returns the cost of a raw material in USD for a given site
+    returns:
+        float : cost of the raw material in USD
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT cost_by_t, currency FROM raw_material WHERE name = ?",
+        (id_raw_material,)
+    )
+    row = cursor.fetchone()
+    if row is None:
+        conn.close()
+        raise ValueError("Raw material not found")
+    cost, currency = row
+
+    if currency == "USD":
+        rate = 1.0
     else:
-        print(f"La colonne 'id' existe déjà dans la table {table}.")
+        cursor.execute(
+            "SELECT USD FROM currency WHERE currency_name = ?",
+            (currency,)
+        )
+        rate_row = cursor.fetchone()
+        if rate_row is None:
+            conn.close()
+            raise ValueError("Currency not found")
+        rate = float(rate_row[0])
+    conn.close()
+    return float(cost) / rate
+    
 
-conn.commit()
-conn.close()
+
+
+
