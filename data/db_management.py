@@ -3,11 +3,8 @@ import os
 
 class Database:
     def __init__(self, file_name="data.db"):
-        self.file_name = file_name
+        self.file_name = os.path.join(os.path.dirname(__file__), file_name)
         self.elements = self.get_elements()
-
-    def _connect(self):
-        return sqlite3.connect(self.file_name)
 
     def get_connection(self):
         """
