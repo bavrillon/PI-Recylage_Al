@@ -44,7 +44,6 @@ if shape=='offcut':
 ID_SCRAP = "0"
 compo_id = conn.query("SELECT COUNT(*) FROM composition") + 1
 conn.query(f"INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
-#SUPPRIMER APRES LA LIGNE CORRESPONDANT A COMPO_ID DE COMPOSITION
 
 
 #adds the input data to the db table "scrap", emptying it first
@@ -105,3 +104,7 @@ if st.button('Optimize cost with/without scrap'):
         with st.spinner("Optimizing cost without scrap..."):
             optimised_cost = optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_cost}")
+
+
+#deletes the table entry "compo_id" in the table composition
+conn.query(f"DELETE FROM composition WHERE composition_id={compo_id}")
