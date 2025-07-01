@@ -43,6 +43,9 @@ if shape=='offcut':
 
 ID_SCRAP = 1 # ID_SCRAP is a constant for the scrap in the database (only 1 line), it can be changed if needed
 compo_id = conn.query("SELECT COUNT(*) FROM composition") + 1
+print("COMPO ID !!!!!!!!!!!!!!!!!!!!!!!!!", compo_id) #PROBLEME : COMPO_ID EST UN DATAFRAME, A REVOIR
+
+
 conn.query(f"INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
 
 
