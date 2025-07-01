@@ -27,14 +27,14 @@ currency = c5.text_input('Currency of the costs')
 
 st.write('Choose the composition of the scrap (in proportions):')
 c6, c7, c8, c9, c10, c11, c12, c13 = st.columns(8)
-si = c6.number_input('Si')
-fe = c7.number_input('Fe')
-cu = c8.number_input('Cu')
-mn = c9.number_input('Mn')
-mg = c10.number_input('Mg')
-cr = c11.number_input('Cr')
-zn = c12.number_input('Zn')
-ti = c13.number_input('Ti')
+si = c6.number_input('Si', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
+fe = c7.number_input('Fe', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
+cu = c8.number_input('Cu', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
+mn = c9.number_input('Mn', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
+mg = c10.number_input('Mg', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
+cr = c11.number_input('Cr', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
+zn = c12.number_input('Zn', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
+ti = c13.number_input('Ti', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
 
 if shape=='swarf':
     shape_id = 0
