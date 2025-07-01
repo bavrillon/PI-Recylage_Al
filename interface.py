@@ -7,7 +7,7 @@ alloys = conn.query("SELECT * FROM alloy")
 raw_materials = conn.query("SELECT * FROM raw_material")
 recycling_costs = conn.query("SELECT * FROM recycling_costs")
 currencies = conn.query("SELECT * FROM currency")
-composition = conn.query("SELECT * FROM composition")
+compositions = conn.query("SELECT * FROM composition")
 
 st.header("Optimization of aluminium alloys")
 
@@ -39,7 +39,7 @@ ti = c13.number_input('Ti')
 if st.checkbox ('Show alloys'):
     edited_alloys = st.data_editor(alloys, num_rows="dynamic")
     alloys = edited_alloys
-if st.checkbox ('Show materials'):
+if st.checkbox ('Show raw materials'):
     edited_raw_materials = st.data_editor(raw_materials, num_rows="dynamic")
     raw_materials = edited_raw_materials
 if st.checkbox ('Show recycling costs'):
@@ -48,6 +48,12 @@ if st.checkbox ('Show recycling costs'):
 if st.checkbox ('Show currencies'):
     edited_currencies = st.data_editor(currencies, num_rows="dynamic")
     currencies = edited_currencies
+if st.checkbox ('Show sites'):
+    edited_sites = st.data_editor(sites, num_rows="dynamic")
+    sites = edited_sites
+if st.checkbox ('Show compositions'):
+    edited_compositions = st.data_editor(compositions, num_rows="dynamic")
+    compositions = edited_compositions
 
 if st.button('Optimize CO2 with/without scrap'):
     scrap_column, no_scrap_column = st.columns(2)
