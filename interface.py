@@ -1,4 +1,5 @@
 #TRUC A FAIRE : REGARDER CE QUI DOIT ETRE ACTUALISE A CHAQUE FOIS ET CE QUI DOIT ETRE MIS EN CACHE
+#probablement : mettre tous les trucs d'input dans une fonction input(conn,sites,...) avec le décorateur @st.cache_data
 
 import streamlit as st
 from optimisation import *
