@@ -63,24 +63,6 @@ class Database:
         conn.close()
         return [row[0] for row in rows]
 
-    def get_co2_scrap(self, id_scrap):
-        """
-        returns:
-            float: CO2 emissions per ton of external scrap.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT t_co2_per_t FROM scrap WHERE scrap_id = ?",
-            (id_scrap,)
-        )
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Scrap not found")
-        return float(row[0])
-    
-
     def get_composition_alloy(self, id_alloy):
         """
         returns:
@@ -160,10 +142,9 @@ class Database:
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT rm.cost_per_t, rm.currency, rm.premium, s.premium_per_t
-            FROM raw_material rm
-            JOIN site s ON s.code = ?
-            WHERE rm.raw_material_id = ?
+            SELECT raw_material.cost_per_t, raw_material.currency, raw_material.premium, site.premium_per_t
+            FROM raw_material, site
+            WHERE site.site_code = ? AND raw_material.raw_material_id = ?
             """,
             (id_site, id_raw_material)
         )
@@ -220,7 +201,7 @@ class Database:
         cost, shape_type_id, currency = row
 
         cursor.execute(
-        "SELECT recycling_cost_per_t FROM recycling_costs WHERE site = ? AND shape_type_id = ?",
+        "SELECT recycling_cost_per_t FROM recycling_cost WHERE site_code = ? AND shape_type_id = ?",
             (id_site, shape_type_id)
         )
 
@@ -235,7 +216,7 @@ class Database:
             rate = 1.0
         else:
             cursor.execute(
-                "SELECT USD FROM currency WHERE currency_name = ?",
+                "SELECT USD FROM currency WHERE name = ?",
                 (currency,)
             )
             rate_row = cursor.fetchone()
