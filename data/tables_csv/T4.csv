@@ -1,6 +1,0 @@
-id_recycling_cost;site;shape_name;recycling_cost_per_t
-1;PAR;Offcut;56
-2;PAR;Swarf;400
-3;GEN;Offcut;40
-4;GEN;Swarf;500
-5;NYC;Offcut;80
