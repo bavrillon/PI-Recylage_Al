@@ -4,11 +4,11 @@
 import streamlit as st
 from optimisation import *
 
-conn = st.connection("data/data_db",type="sql")
+conn = st.connection("data_db",type="sql")
 sites = conn.query("SELECT * FROM site") #returns a DataFrame
 alloys = conn.query("SELECT * FROM alloy")
 raw_materials = conn.query("SELECT * FROM raw_material")
-recycling_costs = conn.query("SELECT * FROM recycling_costs")
+recycling_costs = conn.query("SELECT * FROM recycling_cost")
 currencies = conn.query("SELECT * FROM currency")
 compositions = conn.query("SELECT * FROM composition")
 
@@ -16,7 +16,7 @@ st.header("Optimization of aluminium alloys")
 
 
 site_select = st.selectbox('Which factory?', sites['name'])
-ID_SITE = conn.query(f'SELECT code FROM site WHERE name="{site_select}"')
+ID_SITE = conn.query(f'SELECT site_code FROM site WHERE name="{site_select}"')
 
 c1, c2, c3, c4, c5 = st.columns(5)
 scrap_name = c1.text_input('Name of the scrap')
@@ -48,7 +48,7 @@ conn.query(f"INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}
 
 #adds the input data to the db table "scrap", emptying it first
 conn.query("DELETE FROM scrap")
-conn.query("INSERT INTO scrap (scrap_id, name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) " \
+conn.query("INSERT INTO scrap (scrap_id, scrap_name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) " \
 f"VALUES ('{ID_SCRAP}','{scrap_name}','{compo_id}', '{shape_id}', '{scrap_purchasing_cost_per_t}', '{transportation_cost_per_t}')")
 
 
