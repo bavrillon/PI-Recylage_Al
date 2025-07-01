@@ -2,9 +2,36 @@ import sqlite3
 import os
 
 class Database:
-    def __init__(self, file_name="data.db"):
+    def __init__(self, file_name="data.db", content=None):
+        """
+        content = {'elements': ["Si", "Fe", "Cu", "Zn"]}
+        """
         self.file_name = file_name
-        self.elements = self.get_elements()
+
+        self.elements = content['elements']
+        self.element_str = "[" + "], [".join(self.elements) + "]"
+        self.value_str = ", ".join(["?"] * len(self.elements))
+
+        schema = "CREATE TABLE IF NOT EXISTS [compo] (\n  [compo_id] INTEGER PRIMARY KEY"
+        for element in self.elements:
+            schema += f",\n  [{element}] FLOAT NULL"
+        schema += "\n);\n\n"
+
+        if os.path.exists('schema.sql'):
+            with open('schema.sql', "r") as schema_file:
+                schema += schema_file.read()
+
+        schema_file_name = os.path.splitext(file_name)[0] + '.schema.sql'
+        with open(schema_file_name, "w") as schema_file:
+            schema_file.write(schema)
+
+        if os.path.exists(file_name):
+            os.remove(file_name)
+        self.db = sqlite3.connect(file_name)
+        self.cursor = self.db.cursor()
+
+        self.cursor.executescript(schema)
+
 
     def _connect(self):
         return sqlite3.connect(self.file_name)
@@ -16,7 +43,7 @@ class Database:
         """
         return sqlite3.connect(self.file_name)
 
-    def get_elements(self):
+    def get_elements_from_alloy_table(self):
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info(composition)")
@@ -32,106 +59,14 @@ class Database:
         """
         conn = self.get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT alloy_id FROM raw_material")
+        cursor.execute("SELECT name FROM raw_material")
         rows = cursor.fetchall()
         conn.close()
         return [row[0] for row in rows]
-    
-    def get_co2_raw_material(self, id_raw_material):
-        """
-        Returns:
-            float: CO2 emissions per ton of raw material.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT t_CO2_per_t FROM raw_material WHERE raw_material_id = {id_raw_material}",
-            (id_raw_material,)
-        )
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Raw material not found")
-        return float(row[0])
-    
-    def get_co2_raw_materials():
-        pass
-
-    def get_co2_scrap(self, id_scrap):
-        """
-        returns:
-            float: CO2 emissions per ton of external scrap.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT t_CO2_per_t FROM external_scrap WHERE external_scrap_id = {id_scrap}",
-            (id_scrap,)
-        )
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Scrap not found")
-        return float(row[0])
-    
-
-    def get_composition_alloy(self, id_alloy):
-        """
-        returns:
-            list[float]: list of proportions of each element in the alloy, in the order of self.elements.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        ## elements = self.get_alloy_elements() 'Al, Fe, Si' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        query = f"SELECT {elements} FROM alloy WHERE alloy_id = {id_alloy}"
-        cursor.execute(query, (id_alloy,))
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Alloy not found")
-        return list(row)
-    
-    def get_composition_scrap(self, id_scrap):
-        """
-        returns:
-            list[float]: list of proportions of each element in the scrap in the order of self.elements.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        ## elements = self.get_alloy_elements() 'Al, Fe, Si' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        query = f"SELECT {elements} FROM external_scrap WHERE external_scrap_id = {id_scrap} "
-        cursor.execute(query, (id_scrap,))
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Scrap not found")
-        return list(row)
-    
-    def get_composition_raw_material(self, id_raw_material):
-        """
-        returns:
-            list[float]: list of proportions of each element in the raw material in the order of self.elements.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        ## elements = self.get_alloy_elements() 'Al, Fe, Si' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        query = f"SELECT {elements} FROM raw_material WHERE raw_material_id = {id_raw_material}"
-        cursor.execute(query, (id_raw_material,))
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Raw material not found")
-        return list(row)
-    
 
     def get_cost_raw_materials(self, id_raw_material):
-        pass
-
-
-    #def get_cost_raw_materials(self, id_raw_material):
         """
-        returns the cost of a raw material in USD.
-            float: Cost in USD.
+        returns the cost of a raw material in USD for a given site.
         """
         conn = self.get_connection()
         cursor = conn.cursor()
@@ -142,6 +77,7 @@ class Database:
         row = cursor.fetchone()
         if row is None:
             conn.close()
+
             raise ValueError("Raw material not found")
         cost, currency = row
 
@@ -160,7 +96,88 @@ class Database:
         conn.close()
         return float(cost) / rate
     
-    #def get_cost_scrap(self, id_scrap):
+
+    def get_co2_raw_material(self, id_raw_material):
+        """
+        Returns:
+            float: CO2 emissions per ton of raw material.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT t_CO2_per_t FROM raw_material WHERE name = ?",
+            (id_raw_material,)
+        )
+        row = cursor.fetchone()
+        conn.close()
+        if row is None:
+            raise ValueError("Raw material not found")
+        return float(row[0])
+    
+    def get_co2_scrap(self, id_scrap):
+        """
+        returns:
+            float: CO2 emissions per ton of external scrap.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT t_CO2_per_t FROM external_scrap WHERE scrap_name = ?",
+            (id_scrap,)
+        )
+        row = cursor.fetchone()
+        conn.close()
+        if row is None:
+            raise ValueError("Scrap not found")
+        return float(row[0])
+    
+
+    def get_composition_alloy(self, id_alloy):
+        """
+        returns:
+            list[float]: list of proportions of each element in the alloy, in the order of self.elements.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        query = f"SELECT {', '.join(self.elements)} FROM alloy WHERE alloy = ?"
+        cursor.execute(query, (id_alloy,))
+        row = cursor.fetchone()
+        conn.close()
+        if row is None:
+            raise ValueError("Alloy not found")
+        return list(row)
+    
+    def get_composition_scrap(self, id_scrap):
+        """
+        returns:
+            list[float]: list of proportions of each element in the scrap in the order of self.elements.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        query = f"SELECT {', '.join(self.elements)} FROM external_scrap WHERE scrap_name = ?"
+        cursor.execute(query, (id_scrap,))
+        row = cursor.fetchone()
+        conn.close()
+        if row is None:
+            raise ValueError("Scrap not found")
+        return list(row)
+    
+    def get_composition_raw_material(self, id_raw_material):
+        """
+        returns:
+            list[float]: list of proportions of each element in the raw material in the order of self.elements.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        query = f"SELECT {', '.join(self.elements)} FROM raw_material WHERE name = ?"
+        cursor.execute(query, (id_raw_material,))
+        row = cursor.fetchone()
+        conn.close()
+        if row is None:
+            raise ValueError("Raw material not found")
+        return list(row)
+    
+    def get_cost_scrap(self, id_scrap):
         """
         returns the cost of a scrap in USD for a given site.
         """
@@ -193,18 +210,8 @@ class Database:
         return float(cost) / rate
     
 
-    
-    
 
 
     
 
     
-
-
-
-
-
-
-
-

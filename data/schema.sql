@@ -1,3 +1,4 @@
+
 CREATE TABLE [currency] (
   [currency_id] INTEGER PRIMARY KEY,
   [name] TEXT UNIQUE NOT NULL,
@@ -7,7 +8,7 @@ CREATE TABLE [currency] (
 CREATE TABLE [site] (
   [site_id] INTEGER PRIMARY KEY,
   [code] TEXT UNIQUE NOT NULL,
-  [name] TEXT UNIQUE NOT NULL,
+  [name] TEXT UNIQUE NOT NULL,  
   [premium_per_t] REAL NOT NULL,
   [currency_id] INTEGER NOT NULL,
   FOREIGN KEY ([currency_id]) REFERENCES [currency] ([currency_id])
