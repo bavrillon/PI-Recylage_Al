@@ -1,3 +1,6 @@
+#TRUC A FAIRE : REGARDER CE QUI DOIT ETRE ACTUALISE A CHAQUE FOIS ET CE QUI DOIT ETRE MIS EN CACHE
+#probablement : mettre tous les trucs d'input dans une fonction input(conn,sites,...) avec le décorateur @st.cache_data
+
 import streamlit as st
 from optimisation import *
 
@@ -13,7 +16,7 @@ st.header("Optimization of aluminium alloys")
 
 
 site = st.selectbox('Which factory?', sites['name'])
-ID_SITE = conn.query('SELECT code FROM site WHERE name="{site}"')
+ID_SITE = conn.query(f'SELECT code FROM site WHERE name="{site}"')
 
 c1, c2, c3, c4, c5 = st.columns(5)
 scrap_name = c1.text_input('Name of the scrap')
@@ -38,16 +41,15 @@ if shape=='swarf':
 if shape=='offcut':
     shape_id = 1
 
-
+ID_SCRAP = "0"
 compo_id = conn.query("SELECT COUNT(*) FROM composition") + 1
-conn.query("INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
-#SUPPRIMER APRES LA LIGNE CORRESPONDANT A COMPO_ID DE COMPOSITION
+conn.query(f"INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
 
 
 #adds the input data to the db table "scrap", emptying it first
 conn.query("DELETE FROM scrap")
 conn.query("INSERT INTO scrap (scrap_id, name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) " \
-"VALUES ('0','{scrap_name}','{compo_id}', '{shape_id}', '{scrap_purchasing_cost_per_t}', '{transportation_cost_per_t}')")
+f"VALUES ('{ID_SCRAP}','{scrap_name}','{compo_id}', '{shape_id}', '{scrap_purchasing_cost_per_t}', '{transportation_cost_per_t}')")
 
 
 if st.checkbox ('Show alloys'):
@@ -72,33 +74,37 @@ if st.checkbox ('Show compositions'):
 if st.button('Optimize CO2 with/without scrap'):
     scrap_column, no_scrap_column = st.columns(2)
     with scrap_column:
-        alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
+        alloy = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy
-        ID_ALLOY = alloys['id_alloy']
-        st.write("Optimizing with scrap...")
-        optimised_composition = optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloys WHERE name="{alloy}"')
+        with st.spinner("Optimizing with scrap..."):
+            optimised_composition = optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_composition}")
     with no_scrap_column:
-        alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
+        alloy = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy
-        ID_ALLOY = alloys['id_alloy']
-        st.write("Optimizing without scrap...")
-        optimised_composition = optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloys WHERE name="{alloy}"')
+        with st.spinner("Optimizing without scrap..."):
+            optimised_composition = optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_composition}")
 
 if st.button('Optimize cost with/without scrap'):
     cost_column, no_cost_column = st.columns(2)
     with cost_column:
-        alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
+        alloy = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy
-        ID_ALLOY = alloys['id_alloy']
-        st.write("Optimizing cost with scrap...")
-        optimised_cost = optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloys WHERE name="{alloy}"')
+        with st.spinner("Optimizing cost with scrap..."):
+            optimised_cost = optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_cost}")
     with no_cost_column:
-        alloy = st.selectbox('Which alloy?', alloys['alloy_name'])
+        alloy = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy
-        ID_ALLOY = alloys['id_alloy']
-        st.write("Optimizing cost without scrap...")
-        optimised_cost = optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
+        ID_ALLOY = conn.query('SELECT id_alloy FROM alloys WHERE name="{alloy}"')
+        with st.spinner("Optimizing cost without scrap..."):
+            optimised_cost = optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_cost}")
+
+
+#deletes the table entry "compo_id" in the table composition
+conn.query(f"DELETE FROM composition WHERE composition_id={compo_id}")
