@@ -84,66 +84,20 @@ class Database:
         return float(row[0])
     
 
-    def get_composition_alloy(self, id_alloy):
+    def get_composition(self, id_thing):
         """
         returns:
-            list[float]: list of proportions of each element in the alloy in the order of self.elements.
+            list[float]: list of proportions of each element in the thing in the order of self.elements.
         """
         conn = self.get_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT composition_id FROM alloy WHERE alloy_id = ?", (id_alloy,))
+        cursor.execute("SELECT composition_id FROM alloy WHERE alloy_id = ?", (id_thing,))
         row = cursor.fetchone()
         if row is None:
             conn.close()
-            raise ValueError("Alloy not found")
+            raise ValueError("Thing not found")
         composition_id = row[0]
 
-        elements = self.get_elements()  
-        query = f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
-        cursor.execute(query, (composition_id,))
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Composition not found")
-        return list(row)
-    
-    def get_composition_scrap(self, id_scrap):
-        """
-        returns:
-            list[float]: list of proportions of each element in the scrap in the order of self.elements.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT composition_id FROM alloy WHERE alloy_id = ?", (id_scrap,))
-        row = cursor.fetchone()
-        if row is None:
-            conn.close()
-            raise ValueError("Alloy not found")
-        composition_id = row[0]
-        
-        elements = self.get_elements()  
-        query = f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
-        cursor.execute(query, (composition_id,))
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Composition not found")
-        return list(row)
-    
-    def get_composition_raw_material(self, id_raw_material):
-        """
-        returns:
-            list[float]: list of proportions of each element in the scrap in the order of self.elements.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT composition_id FROM alloy WHERE alloy_id = ?", (id_raw_material,))
-        row = cursor.fetchone()
-        if row is None:
-            conn.close()
-            raise ValueError("Alloy not found")
-        composition_id = row[0]
-        
         elements = self.get_elements()  
         query = f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
         cursor.execute(query, (composition_id,))
