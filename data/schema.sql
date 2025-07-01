@@ -54,4 +54,28 @@ CREATE TABLE [recycling_costs] (
   FOREIGN KEY ([site]) REFERENCES [site] ([site_code])
 );
 
+CREATE TABLE [shape_type] (
+  [shape_type_id] INTEGER PRIMARY KEY,
+  [name]
+);
 
+CREATE TABLE [shape] (
+  [shape_id] INTEGER PRIMARY KEY,
+  [site_id] INTEGER NOT NULL,
+  [shape_type_id] INTEGER NOT NULL,
+  [recycling_cost_per_t] READ NOT NULL
+);
+
+CREATE TABLE [scrap] (
+  [scrap_id] INTEGER PRIMARY KEY,
+  [name] TEXT NOT NULL,
+  [composition_id] INTEGER NOT NULL,
+  [shape_type_id] INTEGER NOT NULL,
+  [scrap_purchasing_cost_per_t] REAL NOT NULL,
+  [transportation_cost_per_t] REAL NOT NULL,
+  [currency_id] INTEGER NOT NULL,
+  [t_co2_per_t] REAL NOT NULL,
+  FOREIGN KEY ([composition_id]) REFERENCES [composition] ([composition_id]),
+  FOREIGN KEY ([shape_type_id]) REFERENCES [shape_type] ([shape_type_id]),
+  FOREIGN KEY ([currency_id]) REFERENCES [currency] ([currency_id])
+);
