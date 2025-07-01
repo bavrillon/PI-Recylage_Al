@@ -23,7 +23,7 @@ scrap_name = c1.text_input('Name of the scrap')
 shape = c2.selectbox('Shape of the scrap', ['swarf', 'offcut'])
 scrap_purchasing_cost_per_t = c3.text_input('Purchasing cost of the scrap (per t)')
 transportation_cost_per_t = c4.text_input('Transportation cost of the scrap (per t)')
-currency = c5.text_input('Currency of the costs')
+currency = c5.selectbox('Currency of the costs', currencies['name'])
 
 st.write('Choose the composition of the scrap (in proportions):')
 c6, c7, c8, c9, c10, c11, c12, c13 = st.columns(8)
