@@ -13,8 +13,7 @@ st.header("Optimization of aluminium alloys")
 
 
 site = st.selectbox('Which factory?', sites['name'])
-'You selected:', site
-ID_SITE = site['site_code']
+ID_SITE = conn.query('SELECT code FROM site WHERE name="{site}"')
 
 c1, c2, c3, c4, c5 = st.columns(5)
 scrap_name = c1.text_input('Name of the scrap')
