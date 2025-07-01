@@ -1,3 +1,4 @@
+
 CREATE TABLE [currency] (
   [currency_id] INTEGER PRIMARY KEY,
   [name] TEXT UNIQUE NOT NULL,
