@@ -1,5 +1,5 @@
 
-CREATE TABLE [currency] (,
+CREATE TABLE [currency] (
   [name] TEXT PRIMARY KEY,
   [USD] REAL NOT NULL
 );
