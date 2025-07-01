@@ -1,5 +1,6 @@
 import sqlite3
 import os
+
 # Nom du fichier SQL à importer
 sql_file = os.path.join(os.path.dirname(__file__),'schema.sql') 
 
