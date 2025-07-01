@@ -49,21 +49,11 @@ CREATE TABLE [raw_material] (
 CREATE TABLE [recycling_costs] (
   [recycling_costs_id] INTEGER PRIMARY KEY,
   [site] TEXT NOT NULL,
+  [shape_type_id] INTEGER NOT NULL,
+  [shape_id] INTEGER NOT NULL,
   [shape_name] TEXT NOT NULL,
   [recycling_cost_per_t] REAL NOT NULL,
   FOREIGN KEY ([site]) REFERENCES [site] ([site_code])
-);
-
-CREATE TABLE [shape_type] (
-  [shape_type_id] INTEGER PRIMARY KEY,
-  [name]
-);
-
-CREATE TABLE [shape] (
-  [shape_id] INTEGER PRIMARY KEY,
-  [site_id] INTEGER NOT NULL,
-  [shape_type_id] INTEGER NOT NULL,
-  [recycling_cost_per_t] READ NOT NULL
 );
 
 CREATE TABLE [scrap] (
