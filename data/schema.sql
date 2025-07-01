@@ -45,8 +45,8 @@ CREATE TABLE [raw_material] (
   FOREIGN KEY ([composition_id]) REFERENCES [composition] ([composition_id])
 );
 
-CREATE TABLE [recycling_costs] (
-  [recycling_costs_id] INTEGER PRIMARY KEY,
+CREATE TABLE [recycling_cost] (
+  [recycling_cost_id] INTEGER PRIMARY KEY,
   [site] TEXT NOT NULL,
   [shape_type_id] INTEGER NOT NULL,
   [shape_name] TEXT NOT NULL,
