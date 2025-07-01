@@ -76,14 +76,14 @@ if st.button('Optimize CO2 with/without scrap'):
     with scrap_column:
         alloy = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloys WHERE name="{alloy}"')
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy}"')
         with st.spinner("Optimizing with scrap..."):
             optimised_composition = optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_composition}")
     with no_scrap_column:
         alloy = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloys WHERE name="{alloy}"')
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy}"')
         with st.spinner("Optimizing without scrap..."):
             optimised_composition = optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_composition}")
@@ -93,14 +93,14 @@ if st.button('Optimize cost with/without scrap'):
     with cost_column:
         alloy = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloys WHERE name="{alloy}"')
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy}"')
         with st.spinner("Optimizing cost with scrap..."):
             optimised_cost = optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_cost}")
     with no_cost_column:
         alloy = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy
-        ID_ALLOY = conn.query('SELECT id_alloy FROM alloys WHERE name="{alloy}"')
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy}"')
         with st.spinner("Optimizing cost without scrap..."):
             optimised_cost = optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_cost}")
