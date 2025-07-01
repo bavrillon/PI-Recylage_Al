@@ -17,12 +17,12 @@ ID_SITE = conn.query('SELECT code FROM site WHERE name="{site}"')
 
 c1, c2, c3, c4, c5 = st.columns(5)
 scrap_name = c1.text_input('Name of the scrap')
-shape = c2.text_input('Shape of the scrap')
+shape = c2.selectbox('Shape of the scrap', ['swarf', 'offcut'])
 scrap_purchasing_cost_per_t = c3.text_input('Purchasing cost of the scrap (per t)')
 transportation_cost_per_t = c4.text_input('Transportation cost of the scrap (per t)')
 currency = c5.text_input('Currency of the costs')
 
-st.write('Choose the composition of the scrap:')
+st.write('Choose the composition of the scrap (in proportions):')
 c6, c7, c8, c9, c10, c11, c12, c13 = st.columns(8)
 si = c6.number_input('Si')
 fe = c7.number_input('Fe')
@@ -33,7 +33,17 @@ cr = c11.number_input('Cr')
 zn = c12.number_input('Zn')
 ti = c13.number_input('Ti')
 
-#ajouter les données input à la db scrap, en la vidant avant
+if shape=='swarf':
+    shape_id = 0
+if shape=='offcut':
+    shape_id = 1
+
+compo_id = conn.query("SELECT composition_id FROM composition WHERE Si='{si}' AND Fe='{fe}' AND Cu='{cu}' AND Mn='{mn}' AND Mg='{mg}' AND Cr='{cr}' AND Zn='{zn}' AND Ti='{ti}'")
+
+#adds the input data to the db table "scrap", emptying it first
+conn.query("DELETE FROM scrap")
+conn.query("INSERT INTO scrap (scrap_id, name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) " \
+"VALUES ('0','{scrap_name}','{compo_id}', '{shape_id}', '{scrap_purchasing_cost_per_t}', '{transportation_cost_per_t}')")
 
 
 if st.checkbox ('Show alloys'):
