@@ -1,0 +1,11 @@
+raw_material_id;name;composition_id;cost_by_t;premium;currency;t_CO2/t
+1;Si;25;2800;0;USD;1
+2;Fe;26;313;0;USD;5
+3;Cu ;27;8750;0;USD;0,5
+4;Mn ;28;2500;0;USD;0
+5;Mg ;29;3200;0;USD;1
+6;Cr ;30;9953;0;Eur;10
+7;Zn ;31;2955;0;CNY;3
+8;Ti ;32;4960;0;USD;1
+9;P1020;33;2400;1;USD;7
+10;P0202;34;2700;1;USD;6
