@@ -62,7 +62,6 @@ CREATE TABLE [scrap] (
   [scrap_purchasing_cost_per_t] REAL NOT NULL,
   [transportation_cost_per_t] REAL NOT NULL,
   [currency] INTEGER NOT NULL,
-  [t_co2_per_t] REAL NOT NULL,
   FOREIGN KEY ([composition_id]) REFERENCES [composition] ([composition_id]),
   FOREIGN KEY ([shape_type_id]) REFERENCES [shape_type] ([shape_type_id]),
   FOREIGN KEY ([currency]) REFERENCES [currency] ([name])
