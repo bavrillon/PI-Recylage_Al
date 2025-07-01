@@ -10,7 +10,7 @@ conn = sqlite3.connect(db_path)
 for filename in os.listdir(csv_folder):
     if filename.endswith(".csv"):
         table = filename.replace(".csv", "").replace(" ", "_")
-        df = pd.read_csv(os.path.join(csv_folder, filename))
+        df = pd.read_csv(os.path.join(csv_folder, filename), sep=";")
         df.to_sql(table, conn, if_exists="replace", index=False)
         print(f"{table} importée.")
 conn.close()
