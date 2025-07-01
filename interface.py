@@ -39,9 +39,9 @@ if shape=='offcut':
     shape_id = 1
 
 
-
-compo_id = conn.query("INSERT INTO composition VALUES (..., '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
-#RAJOUTER LIGNE DANS TABLE COMPOSITION PUIS LA SUPPRIMER APRES
+compo_id = conn.query("SELECT COUNT(*) FROM composition") + 1
+conn.query("INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
+#SUPPRIMER APRES LA LIGNE CORRESPONDANT A COMPO_ID DE COMPOSITION
 
 
 #adds the input data to the db table "scrap", emptying it first
