@@ -4,7 +4,7 @@
 import streamlit as st
 from optimisation import *
 
-conn = st.connection("data_db",type="sql")
+conn = st.connection("data/data_db",type="sql")
 sites = conn.query("SELECT * FROM site") #returns a DataFrame
 alloys = conn.query("SELECT * FROM alloy")
 raw_materials = conn.query("SELECT * FROM raw_material")
@@ -15,8 +15,8 @@ compositions = conn.query("SELECT * FROM composition")
 st.header("Optimization of aluminium alloys")
 
 
-site = st.selectbox('Which factory?', sites['name'])
-ID_SITE = conn.query(f'SELECT code FROM site WHERE name="{site}"')
+site_select = st.selectbox('Which factory?', sites['name'])
+ID_SITE = conn.query(f'SELECT code FROM site WHERE name="{site_select}"')
 
 c1, c2, c3, c4, c5 = st.columns(5)
 scrap_name = c1.text_input('Name of the scrap')
@@ -41,7 +41,7 @@ if shape=='swarf':
 if shape=='offcut':
     shape_id = 1
 
-ID_SCRAP = "0"
+ID_SCRAP = 1 # ID_SCRAP is a constant for the scrap in the database (only 1 line), it can be changed if needed
 compo_id = conn.query("SELECT COUNT(*) FROM composition") + 1
 conn.query(f"INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
 
@@ -74,16 +74,16 @@ if st.checkbox ('Show compositions'):
 if st.button('Optimize CO2 with/without scrap'):
     scrap_column, no_scrap_column = st.columns(2)
     with scrap_column:
-        alloy = st.selectbox('Which alloy?', alloys['name'])
-        'You selected:', alloy
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy}"')
+        alloy_select = st.selectbox('Which alloy?', alloys['name'])
+        'You selected:', alloy_select
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
         with st.spinner("Optimizing with scrap..."):
             optimised_composition = optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_composition}")
     with no_scrap_column:
-        alloy = st.selectbox('Which alloy?', alloys['name'])
-        'You selected:', alloy
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy}"')
+        alloy_select = st.selectbox('Which alloy?', alloys['name'])
+        'You selected:', alloy_select
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
         with st.spinner("Optimizing without scrap..."):
             optimised_composition = optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_composition}")
@@ -91,16 +91,16 @@ if st.button('Optimize CO2 with/without scrap'):
 if st.button('Optimize cost with/without scrap'):
     cost_column, no_cost_column = st.columns(2)
     with cost_column:
-        alloy = st.selectbox('Which alloy?', alloys['name'])
-        'You selected:', alloy
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy}"')
+        alloy_select = st.selectbox('Which alloy?', alloys['name'])
+        'You selected:', alloy_select
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
         with st.spinner("Optimizing cost with scrap..."):
             optimised_cost = optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_cost}")
     with no_cost_column:
-        alloy = st.selectbox('Which alloy?', alloys['name'])
-        'You selected:', alloy
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy}"')
+        alloy_select = st.selectbox('Which alloy?', alloys['name'])
+        'You selected:', alloy_select
+        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
         with st.spinner("Optimizing cost without scrap..."):
             optimised_cost = optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_cost}")
@@ -108,3 +108,5 @@ if st.button('Optimize cost with/without scrap'):
 
 #deletes the table entry "compo_id" in the table composition
 conn.query(f"DELETE FROM composition WHERE composition_id={compo_id}")
+#delete the table entry "ID_SCRAP" in the table scrap if needed
+#conn.query(f"DELETE FROM scrap WHERE scrap_id={ID_SCRAP}")
