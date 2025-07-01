@@ -165,7 +165,7 @@ class Database:
             """
             SELECT rm.cost_per_t, rm.currency, rm.premium, s.premium_per_t
             FROM raw_material rm
-            JOIN site s ON s.site_id = ?
+            JOIN site s ON s.code = ?
             WHERE rm.raw_material_id = ?
             """,
             (id_site, id_raw_material)
