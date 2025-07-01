@@ -5,7 +5,7 @@ CREATE TABLE [currency] (
 );
 
 CREATE TABLE [site] (
-  [code] TEXT PRIMARY KEY,
+  [site_code] TEXT PRIMARY KEY,
   [name] TEXT UNIQUE NOT NULL,  
   [premium_per_t] REAL NOT NULL,
   [currency] TEXT NOT NULL,

@@ -8,7 +8,6 @@ nb_elements = len(composition_elements)
 
 def optimise_co2_with_scrap(id_site, id_alloy, id_scrap):
     co2_raw_materials = db.get_co2_raw_materials()    # List of the co2/t of the raw materials 
-    co2_raw_materials_and_scrap = co2_raw_materials.append(db.get_co2_scrap(id_scrap))    # List of the co2/t of the raw materials + selected scrap
     raw_materials = db.get_raw_materials()    # List of the ID of the raw materials
     composition_ids = raw_materials.append(id_scrap)   # List of the ID of the raw materials + the scrap to be mixed
     compostion_alloy_wished = db.get_composition_alloy(id_alloy)   
@@ -16,7 +15,7 @@ def optimise_co2_with_scrap(id_site, id_alloy, id_scrap):
     # Optimisation pb
     composition = pulp.LpVariable.dicts("calculed composition", composition_ids, cat='Continuous', lowBound=0, upBound=1)
     problem = pulp.LpProblem(name='optimise_co2_with_scrap', sense=LpMinimize)
-    problem += pulp.lpSum([composition[i]*co2_raw_materials_and_scrap[j] for (j,i) in enumerate(composition_ids)])  # i = ID (raw material or scrap) and j = int
+    problem += pulp.lpSum([composition[i]*co2_raw_materials[j] for (j,i) in enumerate(composition_ids)[:-1]])  # i = ID (raw material only) and j = int
     
     # Constraint sum compositions = 1 :
     #problem += (pulp.lpSum([composition[i] for i in range(len(composition_ids))]) == 1)
