@@ -38,7 +38,11 @@ if shape=='swarf':
 if shape=='offcut':
     shape_id = 1
 
-compo_id = conn.query("SELECT composition_id FROM composition WHERE Si='{si}' AND Fe='{fe}' AND Cu='{cu}' AND Mn='{mn}' AND Mg='{mg}' AND Cr='{cr}' AND Zn='{zn}' AND Ti='{ti}'")
+
+
+compo_id = conn.query("INSERT INTO composition VALUES (..., '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
+#RAJOUTER LIGNE DANS TABLE COMPOSITION PUIS LA SUPPRIMER APRES
+
 
 #adds the input data to the db table "scrap", emptying it first
 conn.query("DELETE FROM scrap")
