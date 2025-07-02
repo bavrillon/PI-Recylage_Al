@@ -102,36 +102,49 @@ if st.checkbox ('Show compositions'):
     edited_compositions = st.data_editor(compositions, num_rows="dynamic")
     compositions = edited_compositions
 
+
+
 if st.button('Optimize CO2 with/without scrap'):
+    alloy_select = st.selectbox('Which alloy?', alloys['name'], key = "with_scrap")
     scrap_column, no_scrap_column = st.columns(2)
+
     with scrap_column:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
+        query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+        with conn.session as session:
+            ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
         with st.spinner("Optimizing with scrap..."):
             optimised_composition = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_composition}")
+
     with no_scrap_column:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
+        query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+        with conn.session as session:
+            ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
         with st.spinner("Optimizing without scrap..."):
             optimised_composition = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_composition}")
 
+
 if st.button('Optimize cost with/without scrap'):
+    alloy_select = st.selectbox('Which alloy?', alloys['name'], key = "without scrap")
     cost_column, no_cost_column = st.columns(2)
+
     with cost_column:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
+        query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+        with conn.session as session:
+            ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
         with st.spinner("Optimizing cost with scrap..."):
             optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_cost}")
+
     with no_cost_column:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
+        query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+        with conn.session as session:
+            ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
         with st.spinner("Optimizing cost without scrap..."):
             optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_cost}")
