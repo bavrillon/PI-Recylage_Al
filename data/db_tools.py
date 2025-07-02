@@ -344,15 +344,14 @@ class Database:
         # Optimisation pb
         composition = pulp.LpVariable.dicts("calculed composition", composition_ids, cat='Continuous', lowBound=0, upBound=1)
         problem = pulp.LpProblem(name='optimise_utilisation_scrap', sense=pulp.LpMaximize)
-        problem += composition[len(composition_ids)-1]  # Maximize the proportion of the scrap
+        problem += composition[id_scrap]  # Maximize the proportion of the scrap
     
         # Constraint sum compositions = 1 :
         problem += (pulp.lpSum([composition[i] for i in composition_ids]) == 1)
         # Constraint of composition of the alloy :
+        print(compostion_alloy_wished,self.get_composition_scrap(id_scrap))
         for k in range(self.nb_elements) :  
-            composition_raw_materials_and_scrap = [self.get_composition_raw_material(id_raw_mat) for id_raw_mat in raw_materials] + [self.get_composition_scrap(id_scrap)] # Composition in different elements of the raw materials + the scrap
-                                                                                                                                                                        #  Ligne = raw material / scrap.  Colonne = Composition in different elements
-            problem += pulp.lpSum([composition[i]*composition_raw_materials_and_scrap[j][k] for (j,i) in enumerate(composition_ids)]) == compostion_alloy_wished[k]
+            problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) + composition[id_scrap]*self.get_composition_scrap(id_scrap)[k] == compostion_alloy_wished[k]
     
         problem.solve()
         #vérifier la cohérence du résultat ?
