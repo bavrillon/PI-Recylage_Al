@@ -359,11 +359,3 @@ class Database:
 
         optimised_composition = [composition[i].varValue for i in composition_ids]
         return(optimised_composition)
-
-
-    
-#################### TESTS #################################
-
-db = Database("data.db")
-
-test = db.optimise_utilisation_scrap('PAR', 3, 1)
