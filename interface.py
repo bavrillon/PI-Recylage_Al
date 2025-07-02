@@ -2,7 +2,8 @@
 #probablement : mettre tous les trucs d'input dans une fonction input(conn,sites,...) avec le décorateur @st.cache_data
 
 import streamlit as st
-from optimisation import *
+from data.db_tools import Database
+db = Database("data/data.db")
 
 conn = st.connection("data_db",type="sql")
 sites = conn.query("SELECT * FROM site") #returns a DataFrame
@@ -79,14 +80,14 @@ if st.button('Optimize CO2 with/without scrap'):
         'You selected:', alloy_select
         ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
         with st.spinner("Optimizing with scrap..."):
-            optimised_composition = optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+            optimised_composition = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_composition}")
     with no_scrap_column:
         alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
         ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
         with st.spinner("Optimizing without scrap..."):
-            optimised_composition = optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+            optimised_composition = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_composition}")
 
 if st.button('Optimize cost with/without scrap'):
@@ -96,14 +97,14 @@ if st.button('Optimize cost with/without scrap'):
         'You selected:', alloy_select
         ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
         with st.spinner("Optimizing cost with scrap..."):
-            optimised_cost = optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+            optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_cost}")
     with no_cost_column:
         alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
         ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
         with st.spinner("Optimizing cost without scrap..."):
-            optimised_cost = optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
+            optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_cost}")
 
 
