@@ -21,20 +21,20 @@ ID_SITE = conn.query(f'SELECT site_code FROM site WHERE name="{site_select}"')
 c1, c2, c3, c4, c5 = st.columns(5)
 scrap_name = c1.text_input('Name of the scrap')
 shape = c2.selectbox('Shape of the scrap', ['swarf', 'offcut'])
-scrap_purchasing_cost_per_t = c3.text_input('Purchasing cost of the scrap (per t)')
-transportation_cost_per_t = c4.text_input('Transportation cost of the scrap (per t)')
+scrap_purchasing_cost_per_t = c3.number_input('Purchasing cost of the scrap (per t)', min_value = 0.0)
+transportation_cost_per_t = c4.number_input('Transportation cost of the scrap (per t)', min_value = 0.0)
 currency = c5.selectbox('Currency of the costs', currencies['name'])
 
 st.write('Choose the composition of the scrap (in proportions):')
 c6, c7, c8, c9, c10, c11, c12, c13 = st.columns(8)
-si = c6.number_input('Si', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
-fe = c7.number_input('Fe', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
-cu = c8.number_input('Cu', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
-mn = c9.number_input('Mn', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
-mg = c10.number_input('Mg', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
-cr = c11.number_input('Cr', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
-zn = c12.number_input('Zn', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
-ti = c13.number_input('Ti', min_value=0.0, max_value=1.0, step=0.000001, format="%0.6f")
+si = c6.number_input('Si', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
+fe = c7.number_input('Fe', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
+cu = c8.number_input('Cu', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
+mn = c9.number_input('Mn', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
+mg = c10.number_input('Mg', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
+cr = c11.number_input('Cr', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
+zn = c12.number_input('Zn', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
+ti = c13.number_input('Ti', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
 
 if shape=='swarf':
     shape_id = 0
@@ -42,8 +42,7 @@ if shape=='offcut':
     shape_id = 1
 
 ID_SCRAP = 1 # ID_SCRAP is a constant for the scrap in the database (only 1 line), it can be changed if needed
-compo_id = conn.query("SELECT COUNT(*) FROM composition") + 1
-print("COMPO ID !!!!!!!!!!!!!!!!!!!!!!!!!", compo_id) #PROBLEME : COMPO_ID EST UN DATAFRAME, A REVOIR
+compo_id = conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1
 
 
 conn.query(f"INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
