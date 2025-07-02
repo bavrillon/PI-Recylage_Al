@@ -46,7 +46,7 @@ shape_id = conn.query(f"SELECT shape_type_id FROM shape_type WHERE name='{shape}
 
 
 ID_SCRAP = 1 # ID_SCRAP is a constant for the scrap in the database (only 1 line), it can be changed if needed
-compo_id = conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1
+compo_id = conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1 # the scrap composition ID is the last ID in the composition table
 
 
 insert_compo = text("""INSERT INTO composition (composition_id, Si, Fe, Cu, Mn, Mg, Cr, Zn, Ti)
