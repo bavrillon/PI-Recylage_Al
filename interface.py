@@ -1,9 +1,12 @@
 #TRUC A FAIRE : REGARDER CE QUI DOIT ETRE ACTUALISE A CHAQUE FOIS ET CE QUI DOIT ETRE MIS EN CACHE
 #probablement : mettre tous les trucs d'input dans une fonction input(conn,sites,...) avec le décorateur @st.cache_data
 
+from os import path
 import streamlit as st
 from data.db_tools import Database
-db = Database("data/data.db")
+
+db = Database(path.join(path.dirname(__file__), "data.db"))
+
 
 conn = st.connection("data_db",type="sql")
 sites = conn.query("SELECT * FROM site") #returns a DataFrame
