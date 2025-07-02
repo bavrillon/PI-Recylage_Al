@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 # Nom du fichier SQL à importer
-sql_file = os.path.join(os.path.dirname(__file__),'skelton_db.sql') 
+sql_file = os.path.join(os.path.dirname(__file__),'skeleton_db.sql') 
 
 # Nom du fichier SQLite à créer
 db_file = 'data.db'
