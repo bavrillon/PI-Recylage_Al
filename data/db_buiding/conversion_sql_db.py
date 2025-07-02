@@ -5,7 +5,7 @@ import os
 sql_file = os.path.join(os.path.dirname(__file__),'skeleton_db.sql') 
 
 # Nom du fichier SQLite à créer
-db_file = 'data.db'
+db_file = os.path.join(os.path.dirname(__file__),'data.db')
 
 # Lire le contenu du fichier SQL
 with open(sql_file, 'r', encoding='utf-8') as f:
