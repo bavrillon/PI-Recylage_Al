@@ -270,7 +270,7 @@ class Database:
         problem += (pulp.lpSum([composition[i] for i in composition_ids]) == 1)
          # Constraint of composition of the alloy :
         for k in range(self.nb_elements) :  
-            problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) + composition[id_scrap]*self.get_composition_scrap(id_scrap)[k] == compostion_alloy_wished[k]
+            problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) == compostion_alloy_wished[k]
     
         problem.solve()
         #vérifier la cohérence du résultat ?
@@ -315,7 +315,7 @@ class Database:
         problem += (pulp.lpSum([composition[i] for i in composition_ids]) == 1)
         # Constraint of composition of the alloy :
         for k in range(self.nb_elements) :  
-            problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) + composition[id_scrap]*self.get_composition_scrap(id_scrap)[k] == compostion_alloy_wished[k]
+            problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials])  == compostion_alloy_wished[k]
     
         problem.solve()
         #vérifier la cohérence du résultat ?
