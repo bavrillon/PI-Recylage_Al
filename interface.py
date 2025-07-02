@@ -145,3 +145,4 @@ with conn.session as session:
         dict(compo_id = compo_id)
     )
     session.commit()
+
