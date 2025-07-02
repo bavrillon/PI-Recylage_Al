@@ -4,12 +4,13 @@
 from os import path
 import streamlit as st
 from data.db_tools import Database
+from sqlalchemy import text
 import pandas as pd
 
 db = Database(path.join(path.dirname(__file__), "data.db"))
 
 
-conn = st.connection("data_db",type="sql")
+conn = st.connection("data_db",type="sql", connect_args={"timeout": 5})
 sites = conn.query("SELECT * FROM site") #returns a DataFrame
 alloys = conn.query("SELECT * FROM alloy")
 raw_materials = conn.query("SELECT * FROM raw_material")
@@ -22,7 +23,7 @@ st.header("Optimization of aluminium alloys")
 
 
 site_select = st.selectbox('Which factory?', sites['name'])
-ID_SITE = conn.query(f'SELECT site_code FROM site WHERE name="{site_select}"')
+ID_SITE = conn.query(f'SELECT site_code FROM site WHERE name="{site_select}"').iloc[0,0]
 
 c1, c2, c3, c4, c5 = st.columns(5)
 scrap_name = c1.text_input('Name of the scrap')
@@ -49,13 +50,37 @@ ID_SCRAP = 1 # ID_SCRAP is a constant for the scrap in the database (only 1 line
 compo_id = conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1 # the scrap composition ID is the last ID in the composition table
 
 
-conn.query(f"INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
+insert_compo = text("""INSERT INTO composition (composition_id, Si, Fe, Cu, Mn, Mg, Cr, Zn, Ti)
+                    VALUES (:compo_id, :si, :fe, :cu, :mn, :mg, :cr, :zn, :ti)""")
+with conn.session as session:
+    session.execute(
+        insert_compo,
+        dict(compo_id = compo_id, si = si, fe = fe, cu = cu, mn = mn, mg = mg, cr = cr, zn = zn, ti = ti)
+    )
+    session.commit()
 
 
 #adds the input data to the db table "scrap", emptying it first
-conn.query("DELETE FROM scrap")
-conn.query("INSERT INTO scrap (scrap_id, scrap_name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) " \
-f"VALUES ('{ID_SCRAP}','{scrap_name}','{compo_id}', '{shape_id}', '{scrap_purchasing_cost_per_t}', '{transportation_cost_per_t}')")
+delete_scrap = text("""DELETE FROM scrap""")
+with conn.session as session:
+    session.execute(
+        delete_scrap
+    )
+    session.commit()
+
+insert_scrap = text("""INSERT INTO scrap (scrap_id, scrap_name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) 
+                    VALUES (:ID_SCRAP, :scrap_name, :compo_id, :shape_id, :scrap_purchasing_cost_per_t, :transportation_cost_per_t)""")
+with conn.session as session:
+    session.execute(
+        insert_scrap,
+        dict(ID_SCRAP = ID_SCRAP,
+             scrap_name = scrap_name,
+             compo_id = compo_id,
+             shape_id = shape_id,
+             scrap_purchasing_cost_per_t = scrap_purchasing_cost_per_t,
+             transportation_cost_per_t = transportation_cost_per_t) 
+    )
+    session.commit()
 
 
 if st.checkbox ('Show alloys'):
@@ -82,14 +107,14 @@ if st.button('Optimize CO2 with/without scrap'):
     with scrap_column:
         alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
+        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
         with st.spinner("Optimizing with scrap..."):
             optimised_composition = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_composition}")
     with no_scrap_column:
         alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
+        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
         with st.spinner("Optimizing without scrap..."):
             optimised_composition = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_composition}")
@@ -99,57 +124,24 @@ if st.button('Optimize cost with/without scrap'):
     with cost_column:
         alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
+        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
         with st.spinner("Optimizing cost with scrap..."):
             optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
         st.write(f"Optimized composition: {optimised_cost}")
     with no_cost_column:
         alloy_select = st.selectbox('Which alloy?', alloys['name'])
         'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT id_alloy FROM alloy WHERE name="{alloy_select}"')
+        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
         with st.spinner("Optimizing cost without scrap..."):
             optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
         st.write(f"Optimized composition: {optimised_cost}")
 
 
-#delete the table entry "compo_id" in the table composition
-conn.query(f"DELETE FROM composition WHERE composition_id={compo_id}")
-#delete the table entry "ID_SCRAP" in the table scrap if needed
-#conn.query(f"DELETE FROM scrap WHERE scrap_id={ID_SCRAP}")
-
-# Now, we want to optimise an external excel scrap table, with the same structure as the "external_scrap" sheet
-st.subheader("Optimization with external scrap data")
-st.write("You can upload an Excel file with external scrap data. The file should have the same structure as the example provided below.")
-st.download_button(
-    label="Download example file",
-    data="interface/data_example_interface.xlsx",
-    file_name="example_external_scrap.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-uploaded_file = st.file_uploader("Upload your Excel file here :", type=["xlsx"])
-if uploaded_file is not None:
-    df = pd.read_excel(uploaded_file)
-    st.write("Data from the uploaded file:")
-    st.dataframe(df)
-    for index, row in df.iterrows():
-        scrap_name = row['scrap_name']
-        shape = row['shape']
-        scrap_purchasing_cost_per_t = row['scrap_purchasing_cost_per_t']
-        transportation_cost_per_t = row['transportation_cost_per_t']
-        si = row['Si']
-        fe = row['Fe']
-        cu = row['Cu']
-        mn = row['Mn']
-        mg = row['Mg']
-        cr = row['Cr']
-        zn = row['Zn']
-        ti = row['Ti']
-
-        # Insert the external scrap data into the database
-        shape_id = conn.query(f"SELECT shape_type_id FROM shape_type WHERE name='{shape}'").iloc[0,0]
-        compo_id = conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1
-
-        conn.query(f"INSERT INTO composition VALUES ('{compo_id}', '{si}', '{fe}', '{cu}', '{mn}', '{mg}', '{cr}', '{zn}', '{ti}')")
-        conn.query("INSERT INTO scrap (scrap_id, scrap_name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) " \
-                   f"VALUES ('{ID_SCRAP}','{scrap_name}','{compo_id}', '{shape_id}', '{scrap_purchasing_cost_per_t}', '{transportation_cost_per_t}')")
-        
-        st.write(f"Inserted scrap: {scrap_name} with composition ID: {compo_id}")
+#deletes the table entry "compo_id" in the table composition
+delete_compo = text("DELETE FROM composition WHERE composition_id=:compo_id")
+with conn.session as session:
+    session.execute(
+        delete_compo,
+        dict(compo_id = compo_id)
+    )
+    session.commit()
