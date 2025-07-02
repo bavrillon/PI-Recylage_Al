@@ -134,7 +134,6 @@ class Database:
             raise ValueError("Composition not found")
         return list(row)
     
-
     def get_cost_raw_material(self, id_site, id_raw_material):
         """
         Returns the cost of a raw material in USD for a given site.
@@ -185,7 +184,6 @@ class Database:
             costs.append(cost)
         return costs
 
-    
     def get_cost_scrap(self, id_site, id_scrap):
         """
         returns the cost of a scrap in USD for a given site.
@@ -251,7 +249,8 @@ class Database:
             problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) + composition[id_scrap]*self.get_composition_scrap(id_scrap)[k] == compostion_alloy_wished[k]
                                 
         problem.solve()
-        #vérifier la cohérence du résultat ?
+        if pulp.LpStatus[problem.status] is not 'Optimal' :
+            raise ValueError(f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}")
 
         optimised_composition = [composition[i].varValue for i in composition_ids]
         return(optimised_composition)
@@ -271,9 +270,10 @@ class Database:
          # Constraint of composition of the alloy :
         for k in range(self.nb_elements) :  
             problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) == compostion_alloy_wished[k]
-    
+
         problem.solve()
-        #vérifier la cohérence du résultat ?
+        if pulp.LpStatus[problem.status] is not 'Optimal' :
+            raise ValueError(f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}")
 
         optimised_composition = [composition[i].varValue for i in composition_ids]
         return(optimised_composition)
@@ -295,7 +295,8 @@ class Database:
             problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) + composition[id_scrap]*self.get_composition_scrap(id_scrap)[k] == compostion_alloy_wished[k]
     
         problem.solve()
-        #vérifier la cohérence du résultat ?
+        if pulp.LpStatus[problem.status] is not 'Optimal' :
+            raise ValueError(f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}")
     
         optimised_composition = [composition[i].varValue for i in composition_ids]
         return(optimised_composition)
@@ -318,7 +319,8 @@ class Database:
             problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials])  == compostion_alloy_wished[k]
     
         problem.solve()
-        #vérifier la cohérence du résultat ?
+        if pulp.LpStatus[problem.status] is not 'Optimal' :
+            raise ValueError(f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}")
 
         optimised_composition = [composition[i].varValue for i in composition_ids]
         return(optimised_composition)
@@ -340,7 +342,8 @@ class Database:
             problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) + composition[id_scrap]*self.get_composition_scrap(id_scrap)[k] == compostion_alloy_wished[k]
     
         problem.solve()
-        #vérifier la cohérence du résultat ?
+        if pulp.LpStatus[problem.status] is not 'Optimal' :
+            raise ValueError(f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}")
 
         optimised_composition = [composition[i].varValue for i in composition_ids]
         return(optimised_composition)
