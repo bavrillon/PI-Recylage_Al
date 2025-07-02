@@ -5,6 +5,7 @@ from os import path
 import streamlit as st
 from data.db_tools import Database
 from sqlalchemy import text
+import pandas as pd
 
 db = Database(path.join(path.dirname(__file__), "data.db"))
 
