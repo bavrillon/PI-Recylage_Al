@@ -1,0 +1,2 @@
+scrap_id;scrap_name;composition_id;shape_type_id;scrap_purchasing_cost_per_t;transportation_cost_per_t;currency
+0;scraptest;4;0;1920;50;EUR
