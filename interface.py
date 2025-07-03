@@ -1,9 +1,10 @@
-#TRUCS A FAIRE : excels + pb modifier db
+#TRUCS A FAIRE : excels + pb modifier db + améliorer output (faire un joli tableau)
 
 from os import path
 import streamlit as st
 from data.db_tools import Database
 from sqlalchemy import text
+import pandas as pd
 
 db = Database(path.join(path.dirname(__file__), "data.db"))
 
@@ -95,12 +96,79 @@ else :
 
     if st.checkbox('Show alloys from chosen site'):
         alloys_from_site = alloys_from_site.drop(['composition_id'], axis = 1)
-        edited_alloys = st.data_editor(alloys_from_site, num_rows="dynamic")
-        #alloys = edited_alloys
+        edited_alloys = st.data_editor(alloys_from_site, num_rows="dynamic", disabled=("alloy_id"))
+
+        if st.button("Save modifications to database"):
+            for _, row in edited_alloys.iterrows():
+
+                if pd.isna(row["alloy_id"]): #if it is a new alloy
+                    new_alloy_id = "A" + str(conn.query("SELECT COUNT(*) FROM alloy").iloc[0,0] + 1)
+                    new_compo_id = "C" + str(conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1)
+                    insert_compo = text("""INSERT INTO composition (composition_id, Si, Fe, Cu, Mn, Mg, Cr, Zn, Ti)
+                                        VALUES (:composition_id, :Si, :Fe, :Cu, :Mn, :Mg, :Cr, :Zn, :Ti)""")
+                    with conn.session as session:
+                        session.execute(insert_compo,
+                                        dict(composition_id=new_compo_id,
+                                             Si=row["Si"],
+                                             Fe=row["Fe"],
+                                             Cu=row["Cu"],
+                                             Mn=row["Mn"],
+                                             Mg=row["Mg"],
+                                             Cr=row["Cr"],
+                                             Zn=row["Zn"],
+                                             Ti=row["Ti"]))
+                        session.commit()
+                    insert_alloy = text("""INSERT INTO alloy (alloy_id, name, site_code, composition_id)
+                                        VALUES (:alloy_id, :name, :site_code, :composition_id)""")
+                    with conn.session as session:
+                        session.execute(
+                            insert_alloy,
+                            dict(alloy_id=new_alloy_id,
+                                name=row["name"],
+                                site_code=row["site_code"],
+                                composition_id=new_compo_id))
+                        session.commit()
+
+                else: #if the alloy already exists but was modified
+                    alloy_id = row['alloy_id']
+                    query_compo = text("SELECT composition_id FROM alloy WHERE alloy_id = :alloy_id")
+                    with conn.session as session:
+                        composition_id = session.execute(query_compo, {"alloy_id": alloy_id}).first()[0]
+
+                    update_alloy = text("UPDATE alloy SET name = :name, site_code = :site_code WHERE alloy_id = :alloy_id")
+                    with conn.session as session:
+                        session.execute(update_alloy,dict(
+                            name = row["name"],
+                            site_code = row["site_code"],
+                            alloy_id = alloy_id))
+                        session.commit()
+                    update_composition = text("""UPDATE composition SET
+                            Si = :si,
+                            Fe = :fe,
+                            Cu = :cu,
+                            Mn = :mn,
+                            Mg = :mg,
+                            Cr = :cr,
+                            Zn = :zn,
+                            Ti = :ti
+                        WHERE composition_id = :composition_id""")
+                    with conn.session as session:
+                        session.execute(update_composition, dict(
+                                si = row["Si"],
+                                fe = row["Fe"],
+                                cu = row["Cu"],
+                                mn = row["Mn"],
+                                mg = row["Mg"],
+                                cr = row["Cr"],
+                                zn = row["Zn"],
+                                ti = row["Ti"],
+                                composition_id = composition_id))
+                        session.commit()
+
     if st.checkbox('Show raw materials'):
         raw = conn.query("SELECT * FROM raw_material r JOIN composition c ON r.composition_id = c.composition_id ")
-        edited_raw_materials = st.data_editor(raw.drop(['composition_id'], axis = 1), num_rows="dynamic")
-        #raw_materials = edited_raw_materials
+        edited_raw_materials = st.data_editor(raw.drop(['composition_id'], axis = 1), num_rows="dynamic", disabled=("raw_material_id"))
+        #ENREGISTRER MODIFS !!!!!!!!!!!
     if st.checkbox('Show recycling cost from chosen site'):
         edited_recycling_costs = st.data_editor(conn.query(f"SELECT * FROM recycling_cost WHERE site_code = '{ID_SITE}'"))
     if st.checkbox('Show chosen currency'):
@@ -131,15 +199,15 @@ else :
             scrap_co2_column, no_scrap_co2_column = st.columns(2)
 
             with scrap_co2_column:
-                st.subheader(alloy_select, 'with scrap')
-                with st.spinner("Optimizing with scrap..."):
+                st.subheader(alloy_select + ' with scrap')
+                with st.spinner("Optimizing with scrap...", show_time=True):
                     optimised_co2 = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
                 optimised_co2 = [x*100 for x in optimised_co2]
                 st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised_co2)))
 
             with no_scrap_co2_column:
-                st.subheader(alloy_select, 'without scrap')
-                with st.spinner("Optimizing without scrap..."):
+                st.subheader(alloy_select + ' without scrap')
+                with st.spinner("Optimizing without scrap...", show_time=True):
                     optimised_co2 = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
                 optimised_co2 = [x*100 for x in optimised_co2]
                 st.write("Optimized composition (%):", dict(zip(elements, optimised_co2)))
@@ -165,15 +233,15 @@ else :
             scrap_cost_column, no_scrap_cost_column = st.columns(2)
 
             with scrap_cost_column:
-                st.subheader(alloy_select, 'with scrap')
-                with st.spinner("Optimizing cost with scrap..."):
+                st.subheader(alloy_select + ' with scrap')
+                with st.spinner("Optimizing cost with scrap...", show_time=True):
                     optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
                 optimised_cost = [x*100 for x in optimised_cost]
                 st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised_cost)))
 
             with no_scrap_cost_column:
-                st.subheader(alloy_select, 'without scrap')
-                with st.spinner("Optimizing cost without scrap..."):
+                st.subheader(alloy_select + ' without scrap')
+                with st.spinner("Optimizing cost without scrap...", show_time=True):
                     optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
                 optimised_cost = [x*100 for x in optimised_cost]
                 st.write("Optimized composition (%):", dict(zip(elements, optimised_cost)))
@@ -195,8 +263,8 @@ else :
             with conn.session as session:
                 ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
 
-            st.subheader(alloy_select, 'with scrap')
-            with st.spinner("Optimizing with scrap..."):
+            st.subheader(alloy_select + ' with scrap')
+            with st.spinner("Optimizing with scrap...", show_time=True):
                 optimised = db.optimise_utilisation_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
             optimised = [x*100 for x in optimised]
             st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised)))
