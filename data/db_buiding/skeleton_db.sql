@@ -13,7 +13,7 @@ CREATE TABLE [site] (
 );
 
 CREATE TABLE [composition] (
-  [composition_id] INTEGER PRIMARY KEY,
+  [composition_id] TEXT PRIMARY KEY,
   [Si] REAL NOT NULL,
   [Fe] REAL NOT NULL,
   [Cu] REAL NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE [composition] (
 );
 
 CREATE TABLE [alloy] (
-  [alloy_id] INTEGER PRIMARY KEY,
+  [alloy_id] TEXT PRIMARY KEY,
   [site] INTEGER NOT NULL,
   [name] TEXT UNIQUE NOT NULL,
   [composition_id] INTEGER NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE [alloy] (
 );
 
 CREATE TABLE [raw_material] (
-  [raw_material_id] INTEGER PRIMARY KEY,
+  [raw_material_id] TEST PRIMARY KEY,
   [name] TEXT NOT NULL,
   [composition_id] INTEGER NOT NULL,
   [cost_per_t] REAL NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE [recycling_cost] (
 );
 
 CREATE TABLE [scrap] (
-  [scrap_id] INTEGER PRIMARY KEY,
+  [scrap_id] TEXT PRIMARY KEY,
   [name] TEXT NOT NULL,
   [composition_id] INTEGER NOT NULL,
   [shape_type_id] INTEGER NOT NULL,
