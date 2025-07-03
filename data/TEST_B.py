@@ -48,6 +48,6 @@ conn.close()
 
 ############# TEST ##########
 
-test = db.optimise_utilisation_scrap('PAR', 1, 0)
+test = db.optimise_utilisation_scrap('PAR', 'A1', 'S0')
 
 print(test)
