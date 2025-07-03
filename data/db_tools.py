@@ -237,7 +237,48 @@ class Database:
         conn.close()
         return [row[0] for row in rows]
 
+    def get_total_co2(self, composition) -> list[float]:
+        raw_materials = self.get_raw_materials()
+        if len(composition) != len(raw_materials):
+            composition = composition[:-1]  
+
+        co2_values = []
+        total_co2 = 0.0
+        for i, amount in enumerate(composition):
+            raw_material_id = raw_materials[i]
+            co2 = self.get_co2_raw_material(raw_material_id)
+            co2_amount = amount * co2
+            co2_values.append(co2_amount)
+            total_co2 += co2_amount
     
+        co2_values.append(total_co2)  
+        return co2_values
+    
+    def get_total_cost(self, composition, site_code, id_scrap=None):
+        raw_materials = self.get_raw_materials()
+        
+        cost_values = []
+        total_cost = 0.0
+
+        if id_scrap != None :
+            composition_bis = composition[:-1]
+        else:
+            composition_bis = composition
+        for i, amount in enumerate(composition_bis):
+            raw_material_id = raw_materials[i]
+            cost = self.get_cost_raw_material(site_code,raw_material_id)
+            cost_amount = amount * cost
+            cost_values.append(cost_amount)
+            total_cost += cost_amount
+
+        if id_scrap != None :
+            cost_values.append(self.get_cost_scrap(site_code, id_scrap)*composition[-1])
+            total_cost += cost_values[-1]
+
+        cost_values.append(total_cost)  
+        return cost_values
+
+
 
     # ======================================================================
     #                           OPTIMISATION
