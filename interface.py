@@ -1,4 +1,4 @@
-#TRUCS A FAIRE : pb avec 2e bouton optimize + excels + pb modifier db + rajouter bouton opti materiaux (avec scrap)
+#TRUCS A FAIRE : excels + pb modifier db
 
 from os import path
 import streamlit as st
@@ -85,10 +85,11 @@ else :
                 currency = currency) 
         )
         session.commit()
+    
+    alloys_from_site = conn.query("SELECT * FROM alloy JOIN composition ON alloy.composition_id = composition.composition_id "\
+                                      f"WHERE site_code = '{ID_SITE}'")
 
     if st.checkbox ('Show alloys from chosen site'):
-        alloys_from_site = conn.query("SELECT * FROM alloy JOIN composition ON alloy.composition_id = composition.composition_id "\
-                                      f"WHERE site_code = '{ID_SITE}'")
         alloys_from_site = alloys_from_site.drop(['composition_id'], axis = 1)
         edited_alloys = st.data_editor(alloys_from_site, num_rows="dynamic")
         #alloys = edited_alloys
@@ -99,7 +100,7 @@ else :
     if st.checkbox ('Show recycling cost from chosen site'):
         edited_recycling_costs = st.data_editor(conn.query(f"SELECT * FROM recycling_cost WHERE site_code = '{ID_SITE}'"))
     if st.checkbox ('Show chosen currency'):
-        edited_currencies = st.data_editor(conn.query(f"SELECT * FROM currencies WHERE name = '{currency}'"))
+        edited_currencies = st.data_editor(conn.query(f"SELECT * FROM currency WHERE name = '{currency}'"))
     if st.checkbox ('Show chosen site'):
         edited_sites = st.data_editor(conn.query(f"SELECT * FROM site WHERE site_code = '{ID_SITE}'"))
 
@@ -115,30 +116,29 @@ else :
         st.session_state.show_co2 = True
 
     if st.session_state.show_co2:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'], key = "alloy_co2")
 
-        if alloy_select:
-            query = text("SELECT alloy_id FROM alloy WHERE name = :name")
-            with conn.session as session:
-                ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
+        for alloy_select in alloys_from_site['name']:
 
-            scrap_co2_column, no_scrap_co2_column = st.columns(2)
+            if alloy_select:
+                query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+                with conn.session as session:
+                    ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
 
-            with scrap_co2_column:
-                st.subheader('With scrap')
-                'You selected:', alloy_select
-                with st.spinner("Optimizing with scrap..."):
-                    optimised_co2 = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
-                optimised_co2 = [x*100 for x in optimised_co2]
-                st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised_co2)))
+                scrap_co2_column, no_scrap_co2_column = st.columns(2)
 
-            with no_scrap_co2_column:
-                st.subheader('Without scrap')
-                'You selected:', alloy_select
-                with st.spinner("Optimizing without scrap..."):
-                    optimised_co2 = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
-                optimised_co2 = [x*100 for x in optimised_co2]
-                st.write("Optimized composition (%):", dict(zip(elements, optimised_co2)))
+                with scrap_co2_column:
+                    st.subheader(alloy_select, 'with scrap')
+                    with st.spinner("Optimizing with scrap..."):
+                        optimised_co2 = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                    optimised_co2 = [x*100 for x in optimised_co2]
+                    st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised_co2)))
+
+                with no_scrap_co2_column:
+                    st.subheader(alloy_select, 'without scrap')
+                    with st.spinner("Optimizing without scrap..."):
+                        optimised_co2 = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+                    optimised_co2 = [x*100 for x in optimised_co2]
+                    st.write("Optimized composition (%):", dict(zip(elements, optimised_co2)))
 
 
     if 'show_cost' not in st.session_state:
@@ -150,30 +150,29 @@ else :
         st.session_state.show_cost = True
 
     if st.session_state.show_cost:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'], key = "alloy_cost")
 
-        if alloy_select:
-            query = text("SELECT alloy_id FROM alloy WHERE name = :name")
-            with conn.session as session:
-                ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
+        for alloy_select in alloys_from_site['name']:
 
-            scrap_cost_column, no_scrap_cost_column = st.columns(2)
+            if alloy_select:
+                query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+                with conn.session as session:
+                    ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
 
-            with scrap_cost_column:
-                st.subheader('With scrap')
-                'You selected:', alloy_select
-                with st.spinner("Optimizing cost with scrap..."):
-                    optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
-                optimised_cost = [x*100 for x in optimised_cost]
-                st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised_cost)))
+                scrap_cost_column, no_scrap_cost_column = st.columns(2)
 
-            with no_scrap_cost_column:
-                st.subheader('Without scrap')
-                'You selected:', alloy_select
-                with st.spinner("Optimizing cost without scrap..."):
-                    optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
-                optimised_cost = [x*100 for x in optimised_cost]
-                st.write("Optimized composition (%):", dict(zip(elements, optimised_cost)))
+                with scrap_cost_column:
+                    st.subheader(alloy_select, 'with scrap')
+                    with st.spinner("Optimizing cost with scrap..."):
+                        optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                    optimised_cost = [x*100 for x in optimised_cost]
+                    st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised_cost)))
+
+                with no_scrap_cost_column:
+                    st.subheader(alloy_select, 'without scrap')
+                    with st.spinner("Optimizing cost without scrap..."):
+                        optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
+                    optimised_cost = [x*100 for x in optimised_cost]
+                    st.write("Optimized composition (%):", dict(zip(elements, optimised_cost)))
 
 
     if 'show_material' not in st.session_state:
@@ -185,27 +184,27 @@ else :
         st.session_state.show_material = True
 
     if st.session_state.show_material:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'], key = "alloy_material")
 
-        if alloy_select:
-            query = text("SELECT alloy_id FROM alloy WHERE name = :name")
-            with conn.session as session:
-                ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
+        for alloy_select in alloys_from_site['name']:
 
-            st.subheader('With scrap')
-            'You selected:', alloy_select
-            with st.spinner("Optimizing with scrap..."):
-                optimised = db.optimise_utilisation_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
-            optimised = [x*100 for x in optimised]
-            st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised)))
+            if alloy_select:
+                query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+                with conn.session as session:
+                    ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
+
+                st.subheader(alloy_select, 'with scrap')
+                with st.spinner("Optimizing with scrap..."):
+                    optimised = db.optimise_utilisation_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                optimised = [x*100 for x in optimised]
+                st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised)))
 
 
-    #deletes the table entry "compo_id" in the table composition
-    delete_compo = text("DELETE FROM composition WHERE composition_id=:compo_id")
-    with conn.session as session:
-        session.execute(
-            delete_compo,
-            dict(compo_id = compo_id)
-        )
-        session.commit()
-
+    #deletes the table entry "compo_id" in the table composition once the optimization is done
+    if st.session_state.show_co2 or st.session_state.show_cost or st.session_state.show_material:
+        delete_compo = text("DELETE FROM composition WHERE composition_id=:compo_id")
+        with conn.session as session:
+            session.execute(
+                delete_compo,
+                dict(compo_id = compo_id)
+            )
+            session.commit()
