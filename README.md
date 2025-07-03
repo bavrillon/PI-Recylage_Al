@@ -34,12 +34,12 @@ For each alloy, the application performs all relevant optimizations and allows t
 ---
 
 ### Input Data
-
+Applicatif/Exel
 
 ---
 
 ### Output Data
-
+Applicatif/Exel
 
 ---
 
@@ -65,7 +65,7 @@ The following environment is recommended to run the project:
 1. Launch the Streamlit interface.
 2. Select or import scrap data (manual entry or Excel file).
 3. Choose the plant and alloy to optimize.
-4. Run the optimization for cost, CO2, or alloy, with or without scrap.
+4. With or without scrap, run the optimization for cost, CO2, or scrap utilization, .
 5. View and export the results.
 
 ---
