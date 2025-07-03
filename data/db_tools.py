@@ -237,14 +237,7 @@ class Database:
         conn.close()
         return [row[0] for row in rows]
 
-    def get_total_co2(self, composition):
-        for k in range(len())
-        ([composition[id]*self.get_co2_raw_material(id) for id in raw_materials])
-        return total_co2
     
-    def get_total_cost(self, composition,id_scrap=None):
-
-
 
     # ======================================================================
     #                           OPTIMISATION
