@@ -185,7 +185,7 @@ else :
         st.session_state.show_material = True
 
     if st.session_state.show_material:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'], key = "alloy_material")
+        alloy_select = st.selectbox('Which alloy?', alloys['name'], key="alloy_material")
 
         if alloy_select:
             query = text("SELECT alloy_id FROM alloy WHERE name = :name")

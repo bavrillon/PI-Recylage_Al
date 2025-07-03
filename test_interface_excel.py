@@ -6,18 +6,28 @@ import pandas as pd
 db = Database(path.join(path.dirname(__file__), "data.db"))
 conn = st.connection("data_db",type="sql", connect_args={"timeout": 5})
 
+sites = conn.query("SELECT * FROM site") #returns a DataFrame
+alloys = conn.query("SELECT * FROM alloy")
+raw_materials = conn.query("SELECT * FROM raw_material")
+recycling_costs = conn.query("SELECT * FROM recycling_cost")
+currencies = conn.query("SELECT * FROM currency")
+compositions = conn.query("SELECT * FROM composition")
+shape_types = conn.query("SELECT * FROM shape_type")
+
 # testing excel file upload
 st.write("You can upload here an Excel file with the scrap data. Please be careful to use the correct format, like the example provided.")
 st.download_button(label="Download example file", data="interface/data_example_interface.py", file_name="data_example_interface.xlsx")
 uploaded_file = st.file_uploader("Upload Excel file", type=["xlsx"])
 
 if uploaded_file is not None:
-    df = pd.read_excel(uploaded_file)
-    columns = df.columns.tolist()
+    df_scrap = pd.read_excel(uploaded_file)
+    columns = df_scrap.columns.tolist()
     if columns != ["scrap_name", "Si", "Fe", "Cu", "Mn", "Mg", "Cr", "Zn", "Ti", "shape", "scrap_purchasing_cost_per_t", "transportation_cost_per_t", "currency"]:
         st.error("The uploaded file does not have the correct format. Please check the example file.")
     
-    for line in df.itertuples(index=False):
+    df_display = pd.DataFrame(columns=['Alloy', 'Optimization', 'Use scrap', 'Product', 'Price', 'CO2', 'Mass', 'Si', 'Fe', 'Cu', 'Mn', 'Mg', 'Cr', 'Zn', 'Ti'])
+
+    for line in df_scrap.itertuples(index=False):
         scrap_name, si, fe, cu, mn, mg, cr, zn, ti, shape, scrap_purchasing_cost_per_t, transportation_cost_per_t, currency = line
         shape_id = conn.query(f"SELECT shape_type_id FROM shape_type WHERE name='{shape}'").iloc[0, 0]
         currency_id = conn.query(f"SELECT currency_id FROM currency WHERE name='{currency}'").iloc[0, 0]
@@ -48,4 +58,10 @@ if uploaded_file is not None:
             session.execute(insert_scrap)
             session.commit()
         
-        
+        # now, we do the calculations and put it in a new dataframe
+        for _, row in alloys.iterrows():
+            alloy_name = row['name']
+            alloy_site_code = row['site_code']
+            alloy_composition_id = row['composition_id']
+            alloy_id = row['alloy_id']
+            
