@@ -5,7 +5,6 @@ from os import path
 import streamlit as st
 from data.db_tools import Database
 from sqlalchemy import text
-import pandas as pd
 
 db = Database(path.join(path.dirname(__file__), "data.db"))
 
@@ -30,7 +29,7 @@ scrap_name = c1.text_input('Name of the scrap')
 shape = c2.selectbox('Shape of the scrap', shape_types['name'])
 scrap_purchasing_cost_per_t = c3.number_input('Purchasing cost of the scrap (per t)', min_value = 0.0)
 transportation_cost_per_t = c4.number_input('Transportation cost of the scrap (per t)', min_value = 0.0)
-currency = c5.selectbox('Currency of the costs', currencies['name'])
+currency = str(c5.selectbox('Currency of the costs', currencies['name']))
 
 st.write('Choose the composition of the scrap (in proportions):')
 c6, c7, c8, c9, c10, c11, c12, c13 = st.columns(8)
@@ -43,106 +42,140 @@ cr = c11.number_input('Cr', min_value = 0.0, max_value = 1.0, step = 0.000001, f
 zn = c12.number_input('Zn', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
 ti = c13.number_input('Ti', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
 
-shape_id = conn.query(f"SELECT shape_type_id FROM shape_type WHERE name='{shape}'").iloc[0,0]
+if si + fe + cu + mn + mg + cr + zn + ti > 1 :
+    st.write("The sum of compositions cannot be greater than 1")
+
+else :
+
+    shape_id = int(conn.query(f"SELECT shape_type_id FROM shape_type WHERE name='{shape}'").iloc[0,0])
 
 
-ID_SCRAP = 0 # ID_SCRAP is a constant for the scrap in the database (only 1 line), it can be changed if needed
-compo_id = conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1 # the scrap composition ID is the last ID in the composition table
+    ID_SCRAP = 0 # ID_SCRAP is a constant for the scrap in the database (only 1 line), it can be changed if needed
+    compo_id = int(conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1) # the scrap composition ID is the last ID in the composition table
 
 
-insert_compo = text("""INSERT INTO composition (composition_id, Si, Fe, Cu, Mn, Mg, Cr, Zn, Ti)
-                    VALUES (:compo_id, :si, :fe, :cu, :mn, :mg, :cr, :zn, :ti)""")
-with conn.session as session:
-    session.execute(
-        insert_compo,
-        dict(compo_id = compo_id, si = si, fe = fe, cu = cu, mn = mn, mg = mg, cr = cr, zn = zn, ti = ti)
-    )
-    session.commit()
+    insert_compo = text("""INSERT INTO composition (composition_id, Si, Fe, Cu, Mn, Mg, Cr, Zn, Ti)
+                        VALUES (:compo_id, :si, :fe, :cu, :mn, :mg, :cr, :zn, :ti)""")
+    with conn.session as session:
+        session.execute(
+            insert_compo,
+            dict(compo_id = compo_id, si = si, fe = fe, cu = cu, mn = mn, mg = mg, cr = cr, zn = zn, ti = ti)
+        )
+        session.commit()
 
 
-#adds the input data to the db table "scrap", emptying it first
-delete_scrap = text("""DELETE FROM scrap""")
-with conn.session as session:
-    session.execute(
-        delete_scrap
-    )
-    session.commit()
+    #adds the input data to the db table "scrap", emptying it first
+    delete_scrap = text("""DELETE FROM scrap""")
+    with conn.session as session:
+        session.execute(
+            delete_scrap
+        )
+        session.commit()
 
-insert_scrap = text("""INSERT INTO scrap (scrap_id, scrap_name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) 
-                    VALUES (:ID_SCRAP, :scrap_name, :compo_id, :shape_id, :scrap_purchasing_cost_per_t, :transportation_cost_per_t)""")
-with conn.session as session:
-    session.execute(
-        insert_scrap,
-        dict(ID_SCRAP = ID_SCRAP,
-             scrap_name = scrap_name,
-             compo_id = compo_id,
-             shape_id = shape_id,
-             scrap_purchasing_cost_per_t = scrap_purchasing_cost_per_t,
-             transportation_cost_per_t = transportation_cost_per_t) 
-    )
-    session.commit()
-
-
-if st.checkbox ('Show alloys'):
-    edited_alloys = st.data_editor(alloys, num_rows="dynamic")
-    alloys = edited_alloys
-if st.checkbox ('Show raw materials'):
-    edited_raw_materials = st.data_editor(raw_materials, num_rows="dynamic")
-    raw_materials = edited_raw_materials
-if st.checkbox ('Show recycling costs'):
-    edited_recycling_costs = st.data_editor(recycling_costs, num_rows="dynamic")
-    recycling_costs = edited_recycling_costs
-if st.checkbox ('Show currencies'):
-    edited_currencies = st.data_editor(currencies, num_rows="dynamic")
-    currencies = edited_currencies
-if st.checkbox ('Show sites'):
-    edited_sites = st.data_editor(sites, num_rows="dynamic")
-    sites = edited_sites
-if st.checkbox ('Show compositions'):
-    edited_compositions = st.data_editor(compositions, num_rows="dynamic")
-    compositions = edited_compositions
-
-if st.button('Optimize CO2 with/without scrap'):
-    scrap_column, no_scrap_column = st.columns(2)
-    with scrap_column:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'])
-        'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
-        with st.spinner("Optimizing with scrap..."):
-            optimised_composition = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
-        st.write(f"Optimized composition: {optimised_composition}")
-    with no_scrap_column:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'])
-        'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
-        with st.spinner("Optimizing without scrap..."):
-            optimised_composition = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
-        st.write(f"Optimized composition: {optimised_composition}")
-
-if st.button('Optimize cost with/without scrap'):
-    cost_column, no_cost_column = st.columns(2)
-    with cost_column:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'])
-        'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
-        with st.spinner("Optimizing cost with scrap..."):
-            optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
-        st.write(f"Optimized composition: {optimised_cost}")
-    with no_cost_column:
-        alloy_select = st.selectbox('Which alloy?', alloys['name'])
-        'You selected:', alloy_select
-        ID_ALLOY = conn.query(f'SELECT alloy_id FROM alloy WHERE name="{alloy_select}"').iloc[0,0]
-        with st.spinner("Optimizing cost without scrap..."):
-            optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
-        st.write(f"Optimized composition: {optimised_cost}")
+    insert_scrap = text("""INSERT INTO scrap (scrap_id, scrap_name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t, currency) 
+                        VALUES (:ID_SCRAP, :scrap_name, :compo_id, :shape_id, :scrap_purchasing_cost_per_t, :transportation_cost_per_t, :currency)""")
+    with conn.session as session:
+        session.execute(
+            insert_scrap,
+            dict(ID_SCRAP = ID_SCRAP,
+                scrap_name = scrap_name,
+                compo_id = compo_id,
+                shape_id = shape_id,
+                scrap_purchasing_cost_per_t = scrap_purchasing_cost_per_t,
+                transportation_cost_per_t = transportation_cost_per_t,
+                currency = currency) 
+        )
+        session.commit()
 
 
-#deletes the table entry "compo_id" in the table composition
-delete_compo = text("DELETE FROM composition WHERE composition_id=:compo_id")
-with conn.session as session:
-    session.execute(
-        delete_compo,
-        dict(compo_id = compo_id)
-    )
-    session.commit()
+    if st.checkbox ('Show alloys'):
+        edited_alloys = st.data_editor(alloys, num_rows="dynamic")
+        alloys = edited_alloys
+    if st.checkbox ('Show raw materials'):
+        edited_raw_materials = st.data_editor(raw_materials, num_rows="dynamic")
+        raw_materials = edited_raw_materials
+    if st.checkbox ('Show recycling costs'):
+        edited_recycling_costs = st.data_editor(recycling_costs, num_rows="dynamic")
+        recycling_costs = edited_recycling_costs
+    if st.checkbox ('Show currencies'):
+        edited_currencies = st.data_editor(currencies, num_rows="dynamic")
+        currencies = edited_currencies
+    if st.checkbox ('Show sites'):
+        edited_sites = st.data_editor(sites, num_rows="dynamic")
+        sites = edited_sites
+    if st.checkbox ('Show compositions'):
+        edited_compositions = st.data_editor(compositions, num_rows="dynamic")
+        compositions = edited_compositions
+
+
+    if 'show_co2' not in st.session_state:
+        st.session_state.show_co2 = False
+    if 'alloy_co2' not in st.session_state:
+        st.session_state.alloy_co2 = None
+
+    if st.button('Optimize CO2 with/without scrap'):
+        st.session_state.show_co2 = True
+
+    if st.session_state.show_co2:
+        alloy_select = st.selectbox('Which alloy?', alloys['name'], key = "alloy_co2")
+
+        if alloy_select:
+            query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+            with conn.session as session:
+                ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
+
+            scrap_co2_column, no_scrap_co2_column = st.columns(2)
+
+            with scrap_co2_column:
+                'You selected:', alloy_select
+                with st.spinner("Optimizing with scrap..."):
+                    optimised_composition = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                st.write(f"Optimized composition: {optimised_composition}")
+
+            with no_scrap_co2_column:
+                'You selected:', alloy_select
+                with st.spinner("Optimizing without scrap..."):
+                    optimised_composition = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+                st.write(f"Optimized composition: {optimised_composition}")
+
+
+    if 'show_cost' not in st.session_state:
+        st.session_state.show_cost = False
+    if 'alloy_cost' not in st.session_state:
+        st.session_state.alloy_cost = None
+
+    if st.button('Optimize cost with/without scrap'):
+        st.session_state.show_cost = True
+
+    if st.session_state.show_cost:
+        alloy_select = st.selectbox('Which alloy?', alloys['name'], key = "cost")
+
+        if alloy_select:
+            query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+            with conn.session as session:
+                ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
+
+            scrap_cost_column, no_scrap_cost_column = st.columns(2)
+
+            with scrap_cost_column:
+                'You selected:', alloy_select
+                with st.spinner("Optimizing cost with scrap..."):
+                    optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                st.write(f"Optimized composition: {optimised_cost}")
+
+            with no_scrap_cost_column:
+                'You selected:', alloy_select
+                with st.spinner("Optimizing cost without scrap..."):
+                    optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
+                st.write(f"Optimized composition: {optimised_cost}")
+
+
+    #deletes the table entry "compo_id" in the table composition
+    delete_compo = text("DELETE FROM composition WHERE composition_id=:compo_id")
+    with conn.session as session:
+        session.execute(
+            delete_compo,
+            dict(compo_id = compo_id)
+        )
+        session.commit()
 
