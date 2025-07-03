@@ -86,11 +86,11 @@ else :
         )
         session.commit()
     
+    
     alloys_from_site = conn.query("SELECT * FROM alloy a JOIN composition c "\
                                     "ON a.composition_id = c.composition_id "\
                                     f"WHERE a.site_code = '{ID_SITE}'")
     
-    print(alloys_from_site)
 
     if st.checkbox('Show alloys from chosen site'):
         alloys_from_site = alloys_from_site.drop(['composition_id'], axis = 1)
