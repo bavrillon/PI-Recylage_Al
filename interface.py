@@ -51,6 +51,7 @@ else :
 
     ID_SCRAP = 'S0' # ID_SCRAP is a constant for the scrap in the database (only 1 line), it can be changed if needed
     compo_id = int(conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1) # the scrap composition ID is the last ID in the composition table
+    compo_id = 'C' + str(compo_id)
 
 
     insert_compo = text("""INSERT INTO composition (composition_id, Si, Fe, Cu, Mn, Mg, Cr, Zn, Ti)
@@ -86,7 +87,7 @@ else :
         )
         session.commit()
     
-    
+
     alloys_from_site = conn.query("SELECT * FROM alloy a JOIN composition c "\
                                     "ON a.composition_id = c.composition_id "\
                                     f"WHERE a.site_code = '{ID_SITE}'")
