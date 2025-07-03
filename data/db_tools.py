@@ -358,11 +358,12 @@ class Database:
         problem += (pulp.lpSum([composition[i] for i in composition_ids]) == 1)
         # Constraint of composition of the alloy :
         for k in range(self.nb_elements) :  
-            problem += pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) + composition[id_scrap]*self.get_composition_scrap(id_scrap)[k] == composition_alloy_wished[k]
+            problem += ( pulp.lpSum([composition[id]*self.get_composition_raw_material(id)[k] for id in raw_materials]) + composition[id_scrap]*self.get_composition_scrap(id_scrap)[k] ) == composition_alloy_wished[k]
     
         problem.solve()
         if pulp.LpStatus[problem.status] != 'Optimal' :
             raise ValueError(f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}")
 
         optimised_composition = [composition[i].varValue for i in composition_ids]
+        print(composition_alloy_wished)
         return(optimised_composition)
