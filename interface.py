@@ -1,4 +1,4 @@
-#TRUCS A FAIRE : excels + pb modifier db + améliorer output (faire un joli tableau)
+#TRUCS A FAIRE : excels + pb modifier db (raw_materials) + pb pour disabled data_editor (marche pas) + améliorer output (faire un joli tableau)
 
 from os import path
 import streamlit as st
