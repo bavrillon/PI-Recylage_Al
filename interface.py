@@ -30,7 +30,7 @@ scrap_name = c1.text_input('Name of the scrap')
 shape = c2.selectbox('Shape of the scrap', shape_types['name'])
 scrap_purchasing_cost_per_t = c3.number_input('Purchasing cost of the scrap (per t)', min_value = 0.0)
 transportation_cost_per_t = c4.number_input('Transportation cost of the scrap (per t)', min_value = 0.0)
-currency = c5.selectbox('Currency of the costs', currencies['name'])
+currency = str(c5.selectbox('Currency of the costs', currencies['name']))
 
 st.write('Choose the composition of the scrap (in proportions):')
 c6, c7, c8, c9, c10, c11, c12, c13 = st.columns(8)
@@ -43,11 +43,11 @@ cr = c11.number_input('Cr', min_value = 0.0, max_value = 1.0, step = 0.000001, f
 zn = c12.number_input('Zn', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
 ti = c13.number_input('Ti', min_value = 0.0, max_value = 1.0, step = 0.000001, format = "%0.6f")
 
-shape_id = conn.query(f"SELECT shape_type_id FROM shape_type WHERE name='{shape}'").iloc[0,0]
+shape_id = int(conn.query(f"SELECT shape_type_id FROM shape_type WHERE name='{shape}'").iloc[0,0])
 
 
 ID_SCRAP = 0 # ID_SCRAP is a constant for the scrap in the database (only 1 line), it can be changed if needed
-compo_id = conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1 # the scrap composition ID is the last ID in the composition table
+compo_id = int(conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1) # the scrap composition ID is the last ID in the composition table
 
 
 insert_compo = text("""INSERT INTO composition (composition_id, Si, Fe, Cu, Mn, Mg, Cr, Zn, Ti)
@@ -68,8 +68,8 @@ with conn.session as session:
     )
     session.commit()
 
-insert_scrap = text("""INSERT INTO scrap (scrap_id, scrap_name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t) 
-                    VALUES (:ID_SCRAP, :scrap_name, :compo_id, :shape_id, :scrap_purchasing_cost_per_t, :transportation_cost_per_t)""")
+insert_scrap = text("""INSERT INTO scrap (scrap_id, scrap_name, composition_id, shape_type_id, scrap_purchasing_cost_per_t, transportation_cost_per_t, currency) 
+                    VALUES (:ID_SCRAP, :scrap_name, :compo_id, :shape_id, :scrap_purchasing_cost_per_t, :transportation_cost_per_t, :currency)""")
 with conn.session as session:
     session.execute(
         insert_scrap,
@@ -78,7 +78,8 @@ with conn.session as session:
              compo_id = compo_id,
              shape_id = shape_id,
              scrap_purchasing_cost_per_t = scrap_purchasing_cost_per_t,
-             transportation_cost_per_t = transportation_cost_per_t) 
+             transportation_cost_per_t = transportation_cost_per_t,
+             currency = currency) 
     )
     session.commit()
 
