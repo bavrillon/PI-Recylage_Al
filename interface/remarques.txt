@@ -1,6 +1,0 @@
-1er problème : fichier excel en plusieurs feuilles -> trouver comment les gérer
-
-
-sortie fichier excel :
-on veut faire les calculs sur chaque chute (ligne par ligne), on peut utiliser la base et remplir un csv progressivement,
-le convertir en csv pour l'afficher puis faire un bouton téléchargeable pour un fichier excel

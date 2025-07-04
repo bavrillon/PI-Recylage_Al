@@ -96,7 +96,6 @@ if uploaded_file is not None:
                 df_display = pd.concat([df_display, pd.DataFrame([new_line])], ignore_index=True)
                 continue
 
-            print(df_display)
             # Adding the data to the dataframe with the methods to get price and CO2
 
             # we need the sum of all columns for the "total" line
@@ -135,26 +134,26 @@ if uploaded_file is not None:
                     'Alloy': alloy_name, 'Optimization': 'CO2', 'Use scrap': 'Yes', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_co2_with_scrap[i],
                     'CO2': db.get_total_co2(optimized_co2_with_scrap)[i], 'Mass': optimized_co2_with_scrap[i],
-                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])*optimized_co2_with_scrap[i],
-                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])*optimized_co2_with_scrap[i],
-                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])*optimized_co2_with_scrap[i],
-                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])*optimized_co2_with_scrap[i],
-                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_co2_with_scrap[i],
-                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_co2_with_scrap[i],
-                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_co2_with_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_with_scrap[i]}
+                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_co2_with_scrap[i],
+                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_co2_with_scrap[i],
+                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_co2_with_scrap[i],
+                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_co2_with_scrap[i],
+                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_co2_with_scrap[i],
+                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_co2_with_scrap[i],
+                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_co2_with_scrap[i],
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_co2_with_scrap[i]}
                 df_display = pd.concat([df_display, pd.DataFrame([new_line])], ignore_index=True)
 
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_co2_with_scrap[i]
                 mass_total += optimized_co2_with_scrap[i]
-                si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_co2_with_scrap[i]
-                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])*optimized_co2_with_scrap[i]
-                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])*optimized_co2_with_scrap[i]
-                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])*optimized_co2_with_scrap[i]
-                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])*optimized_co2_with_scrap[i]
-                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])*optimized_co2_with_scrap[i]
-                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])*optimized_co2_with_scrap[i]
-                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_with_scrap[i]
+                si_total += db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_co2_with_scrap[i]
+                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_co2_with_scrap[i]
+                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_co2_with_scrap[i]
+                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_co2_with_scrap[i]
+                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_co2_with_scrap[i]
+                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_co2_with_scrap[i]
+                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_co2_with_scrap[i]
+                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_co2_with_scrap[i]
                 
             # lastly, add last line with total values of all the components
             new_line = {
@@ -187,26 +186,26 @@ if uploaded_file is not None:
                     'Alloy': alloy_name, 'Optimization': 'CO2', 'Use scrap': 'No', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_co2_without_scrap[i],
                     'CO2': db.get_total_co2(optimized_co2_without_scrap)[i], 'Mass': optimized_co2_without_scrap[i],
-                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])*optimized_co2_without_scrap[i],
-                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])*optimized_co2_without_scrap[i],
-                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])*optimized_co2_without_scrap[i],
-                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])*optimized_co2_without_scrap[i],
-                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_co2_without_scrap[i],
-                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_co2_without_scrap[i],
-                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_co2_without_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_without_scrap[i]}
+                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_co2_without_scrap[i],
+                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_co2_without_scrap[i],
+                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_co2_without_scrap[i],
+                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_co2_without_scrap[i],
+                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_co2_without_scrap[i],
+                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_co2_without_scrap[i],
+                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_co2_without_scrap[i],
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_co2_without_scrap[i]}
                 df_display = pd.concat([df_display, pd.DataFrame([new_line])], ignore_index=True)
 
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_co2_without_scrap[i]
                 mass_total += optimized_co2_without_scrap[i]
-                si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_co2_without_scrap[i]
-                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])*optimized_co2_without_scrap[i]
-                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])*optimized_co2_without_scrap[i]
-                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])*optimized_co2_without_scrap[i]
-                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])*optimized_co2_without_scrap[i]
-                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])*optimized_co2_without_scrap[i]
-                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])*optimized_co2_without_scrap[i]
-                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_without_scrap[i]
+                si_total += db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_co2_without_scrap[i]
+                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_co2_without_scrap[i]
+                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_co2_without_scrap[i]
+                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_co2_without_scrap[i]
+                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_co2_without_scrap[i]
+                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_co2_without_scrap[i]
+                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_co2_without_scrap[i]
+                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_co2_without_scrap[i]
                 
             # lastly, add last line with total values of all the components
             new_line = {
@@ -269,27 +268,26 @@ if uploaded_file is not None:
                     'Alloy': alloy_name, 'Optimization': 'Price', 'Use scrap': 'Yes', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_price_with_scrap[i],
                     'CO2': db.get_total_co2(optimized_price_with_scrap)[i], 'Mass': optimized_price_with_scrap[i],
-                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])*optimized_price_with_scrap[i],
-                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])*optimized_price_with_scrap[i],
-                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])*optimized_price_with_scrap[i],
-                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])*optimized_price_with_scrap[i],
-                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_price_with_scrap[i],
-                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_price_with_scrap[i],
-                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_price_with_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_with_scrap[i]}
+                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_price_with_scrap[i],
+                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_price_with_scrap[i],
+                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_price_with_scrap[i],
+                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_price_with_scrap[i],
+                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_price_with_scrap[i],
+                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_price_with_scrap[i],
+                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_price_with_scrap[i],
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_price_with_scrap[i]}
                 df_display = pd.concat([df_display, pd.DataFrame([new_line])], ignore_index=True)
 
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_price_with_scrap[i]
                 mass_total += optimized_price_with_scrap[i]
-                si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_price_with_scrap[i]
-                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])*optimized_price_with_scrap[i]
-                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])*optimized_price_with_scrap[i]
-                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])*optimized_price_with_scrap[i]
-                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])*optimized_price_with_scrap[i]
-                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])*optimized_price_with_scrap[i]
-                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])*optimized_price_with_scrap[i]
-                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_with_scrap[i]
-
+                si_total += db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_price_with_scrap[i]
+                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_price_with_scrap[i]
+                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_price_with_scrap[i]
+                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_price_with_scrap[i]
+                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_price_with_scrap[i]
+                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_price_with_scrap[i]
+                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_price_with_scrap[i]
+                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_price_with_scrap[i]
             #then, add last line with total values of all the components
             new_line = {
                 'Alloy': alloy_name, 'Optimization': 'Price', 'Use scrap': 'Yes', 'Product': 'Total',
@@ -322,26 +320,26 @@ if uploaded_file is not None:
                     'Alloy': alloy_name, 'Optimization': 'Price', 'Use scrap': 'No', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_price_without_scrap[i],
                     'CO2': db.get_total_co2(optimized_price_without_scrap)[i], 'Mass': optimized_price_without_scrap[i],
-                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])*optimized_price_without_scrap[i],
-                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])*optimized_price_without_scrap[i],
-                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])*optimized_price_without_scrap[i],
-                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])*optimized_price_without_scrap[i],
-                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_price_without_scrap[i],
-                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_price_without_scrap[i],
-                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_price_without_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_without_scrap[i]}
+                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_price_without_scrap[i],
+                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_price_without_scrap[i],
+                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_price_without_scrap[i],
+                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_price_without_scrap[i],
+                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_price_without_scrap[i],
+                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_price_without_scrap[i],
+                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_price_without_scrap[i],
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_price_without_scrap[i]}
                 df_display = pd.concat([df_display, pd.DataFrame([new_line])], ignore_index=True)
 
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_price_without_scrap[i]
                 mass_total += optimized_price_without_scrap[i]
-                si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_price_without_scrap[i]
-                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])*optimized_price_without_scrap[i]
-                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])*optimized_price_without_scrap[i]
-                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])*optimized_price_without_scrap[i]
-                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])*optimized_price_without_scrap[i]
-                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])*optimized_price_without_scrap[i]
-                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])*optimized_price_without_scrap[i]
-                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_without_scrap[i]
+                si_total += db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_price_without_scrap[i]
+                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_price_without_scrap[i]
+                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_price_without_scrap[i]
+                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_price_without_scrap[i]
+                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_price_without_scrap[i]
+                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_price_without_scrap[i]
+                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_price_without_scrap[i]
+                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_price_without_scrap[i]
                 
             # lastly, add last line with total values of all the components
             new_line = {
@@ -404,26 +402,26 @@ if uploaded_file is not None:
                     'Alloy': alloy_name, 'Optimization': 'Scrap utilization', 'Use scrap': 'Yes', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_mass_with_scrap[i],
                     'CO2': db.get_total_co2(optimized_mass_with_scrap)[i], 'Mass': optimized_mass_with_scrap[i],
-                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])*optimized_mass_with_scrap[i],
-                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])*optimized_mass_with_scrap[i],
-                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])*optimized_mass_with_scrap[i],
-                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])*optimized_mass_with_scrap[i],
-                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_mass_with_scrap[i],
-                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_mass_with_scrap[i],
-                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_mass_with_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_mass_with_scrap[i]}
+                    'Si': db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_mass_with_scrap[i],
+                    'Fe': db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_mass_with_scrap[i],
+                    'Cu': db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_mass_with_scrap[i],
+                    'Mn': db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_mass_with_scrap[i],
+                    'Mg': db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_mass_with_scrap[i],
+                    'Cr': db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_mass_with_scrap[i],
+                    'Zn': db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_mass_with_scrap[i],
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_mass_with_scrap[i]}
                 df_display = pd.concat([df_display, pd.DataFrame([new_line])], ignore_index=True)
 
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_mass_with_scrap[i]
                 mass_total += optimized_mass_with_scrap[i]
-                si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_mass_with_scrap[i]
-                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])*optimized_mass_with_scrap[i]
-                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])*optimized_mass_with_scrap[i]
-                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])*optimized_mass_with_scrap[i]
-                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])*optimized_mass_with_scrap[i]
-                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])*optimized_mass_with_scrap[i]
-                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])*optimized_mass_with_scrap[i]
-                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_mass_with_scrap[i]
+                si_total += db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_mass_with_scrap[i]
+                fe_total += db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_mass_with_scrap[i]
+                cu_total += db.get_composition_raw_material(list_id_raw_materials[2])[2]*optimized_mass_with_scrap[i]
+                mn_total += db.get_composition_raw_material(list_id_raw_materials[3])[3]*optimized_mass_with_scrap[i]
+                mg_total += db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_mass_with_scrap[i]
+                cr_total += db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_mass_with_scrap[i]
+                zn_total += db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_mass_with_scrap[i]
+                ti_total += db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_mass_with_scrap[i]
 
             #then, add last line with total values of all the components
             new_line = {

@@ -48,7 +48,7 @@ CREATE TABLE [raw_material] (
 CREATE TABLE [recycling_cost] (
   [recycling_cost_id] INTEGER PRIMARY KEY,
   [site] TEXT NOT NULL,
-  [shape_type_id] INTEGER NOT NULL,
+  [shape_type_id] INTEGER,
   [shape_name] TEXT NOT NULL,
   [recycling_cost_per_t] REAL NOT NULL,
   FOREIGN KEY ([site]) REFERENCES [site] ([code])
@@ -57,10 +57,10 @@ CREATE TABLE [recycling_cost] (
 CREATE TABLE [scrap] (
   [scrap_id] TEXT PRIMARY KEY,
   [name] TEXT NOT NULL,
-  [composition_id] INTEGER NOT NULL,
-  [shape_type_id] INTEGER NOT NULL,
-  [scrap_purchasing_cost_per_t] REAL NOT NULL,
-  [transportation_cost_per_t] REAL NOT NULL,
+  [composition_id] TEXT NOT NULL,
+  [shape_type_id] INTEGER,
+  [scrap_purchasing_cost_per_t] REAL,
+  [transportation_cost_per_t] REAL,
   [currency] INTEGER NOT NULL,
   FOREIGN KEY ([composition_id]) REFERENCES [composition] ([composition_id]),
   FOREIGN KEY ([shape_type_id]) REFERENCES [shape_type] ([shape_type_id]),

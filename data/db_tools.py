@@ -213,7 +213,7 @@ class Database:
             costs.append(cost)
         return costs
 
-    def get_cost_scrap(self, id_site: str, id_scrap: int) -> float:
+    def get_cost_scrap(self, id_site: str, id_scrap: str) -> float:
         """
         Get the cost of a scrap in USD for a given site.
         """
