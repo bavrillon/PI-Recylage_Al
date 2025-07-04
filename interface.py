@@ -415,7 +415,8 @@ else :
                                   columns=elements+['scrap'],
                                   index=['with scrap']))
             
-    
+    st.write("For a more graphic display, press this button directly (after saving the scrap):")
+
     if st.button("Graphic display"):
         if not st.session_state.scrap_saved:
             st.warning("Scrap was not saved", icon="⚠️")
