@@ -63,6 +63,7 @@ In our SQLite schema, all primary-key values follow a clear naming convention:
 
 This makes it easy to trace each record back to its source table and to avoid ID collisions when joining tables.
 
+---
 ### Output Data
 
 Once the optimization runs, you’ll get:
