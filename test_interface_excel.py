@@ -7,10 +7,11 @@ from sqlalchemy import text
 
 
 # Import the database
-db = Database(path.join(path.dirname(__file__), "data.db"))
+db = Database(path.join(path.dirname(path.realpath(__file__)), "data", "data.db"))
 conn = st.connection("data_db", type="sql", connect_args={"timeout": 5})
 
 st.title("Scrap data upload")
+st.sidebar.markdown("# Optimization of scrap use in aluminum alloys")
 
 sites = conn.query("SELECT * FROM site") #returns a DataFrame
 alloys = conn.query("SELECT * FROM alloy")
@@ -63,7 +64,7 @@ if uploaded_file is not None:
                                 VALUES (:ID_SCRAP, :scrap_name, :compo_id, :shape_id, :scrap_purchasing_cost_per_t, :transportation_cost_per_t, :currency)""")
         with conn.session as session:
             session.execute(insert_scrap,
-                            dict(ID_SCRAP=0,
+                            dict(ID_SCRAP='S0',
                                      scrap_name=scrap_name,
                                      compo_id=compo_id,
                                      shape_id=shape_id,
@@ -87,7 +88,7 @@ if uploaded_file is not None:
             # if the program returns a ValueError, fill the excel table with NaN
             try:
                 optimized_co2_with_scrap = [x*100 for x in db.optimise_co2_with_scrap(id_site=alloy_site_code,
-                                                                                      id_alloy=alloy_id, id_scrap=0)] #composition in %
+                                                                                      id_alloy=alloy_id, id_scrap='S0')] #composition in %
             except ValueError:
                 new_line = {'Alloy': alloy_name, 'Optimization': 'CO2-Error', 'Use scrap': 'Yes', 'Product': 'NaN', 'Price': 'NaN',
                             'CO2': 'NaN', 'Mass': 'NaN', 'Si': 'NaN', 'Fe': 'NaN', 'Cu': 'NaN', 'Mn': 'NaN', 'Mg': 'NaN', 'Cr': 'NaN',
@@ -95,7 +96,7 @@ if uploaded_file is not None:
                 df_display = pd.concat(df_display, pd.DataFrame([new_line], ignore_index=True))
                 continue
 
-
+            print(df_display)
             # Adding the data to the dataframe with the methods to get price and CO2
 
             # we need the sum of all columns for the "total" line
@@ -105,7 +106,7 @@ if uploaded_file is not None:
             # to get the composition of each element, we multiply the composition of each of the raw materials composing the element by the mass of the element in the optimized composition
             new_line = {
                 'Alloy': alloy_name, 'Optimization': 'CO2', 'Use scrap': 'Yes', 'Product': scrap_name,
-                'Price': db.get_cost_scrap(alloy_site_code, id_scrap=0)*optimized_co2_with_scrap[-1],
+                'Price': db.get_cost_scrap(id_site=alloy_site_code, id_scrap='S0')*optimized_co2_with_scrap[-1],
                 'CO2': 0., 'Mass': optimized_co2_with_scrap[-1],
                 'Si': db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_co2_with_scrap[-1],
                 'Fe': db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_co2_with_scrap[-1],
@@ -117,7 +118,7 @@ if uploaded_file is not None:
                 'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_co2_with_scrap[-1]}
             df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
 
-            price_total += db.get_cost_scrap(alloy_site_code, id_scrap=0)*optimized_co2_with_scrap[-1]
+            price_total += db.get_cost_scrap(alloy_site_code, id_scrap='S0')*optimized_co2_with_scrap[-1]
             mass_total += optimized_co2_with_scrap[-1]
             si_total += db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_co2_with_scrap[-1]
             fe_total += db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_co2_with_scrap[-1]
@@ -130,7 +131,7 @@ if uploaded_file is not None:
             
             # then, we add the raw materials data, that we can automatically get with a loop
             for i in range(len(optimized_co2_with_scrap)-1):
-                df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'CO2', 'Use scrap': 'Yes', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_co2_with_scrap[i],
                     'CO2': db.get_total_co2(optimized_co2_with_scrap)[i], 'Mass': optimized_co2_with_scrap[i],
@@ -141,7 +142,9 @@ if uploaded_file is not None:
                     'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_co2_with_scrap[i],
                     'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_co2_with_scrap[i],
                     'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_co2_with_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_with_scrap[i]})
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_with_scrap[i]}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
+
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_co2_with_scrap[i]
                 mass_total += optimized_co2_with_scrap[i]
                 si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_co2_with_scrap[i]
@@ -154,11 +157,12 @@ if uploaded_file is not None:
                 ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_with_scrap[i]
                 
             # lastly, add last line with total values of all the components
-            df_display.append({
+            new_line = {
                 'Alloy': alloy_name, 'Optimization': 'CO2', 'Use scrap': 'Yes', 'Product': 'Total',
                 'Price': price_total, 'CO2': db.get_total_co2(optimized_co2_with_scrap)[-1],
                 'Mass': mass_total, 'Si': si_total, 'Fe': fe_total, 'Cu': cu_total, 'Mn': mn_total,
-                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total})
+                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total}
+            df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
 
 
 # ===================================================================================================================
@@ -168,10 +172,11 @@ if uploaded_file is not None:
             try:
                 optimized_co2_without_scrap = [x*100 for x in db.optimise_co2_without_scrap(id_site=alloy_site_code, id_alloy=alloy_id)]
             except ValueError:
-                df_display = df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'CO2-Error', 'Use scrap': 'No', 'Product': 'NaN', 'Price': 'NaN',
                     'CO2': 'NaN', 'Mass': 'NaN', 'Si': 'NaN', 'Fe': 'NaN', 'Cu': 'NaN', 'Mn': 'NaN', 'Mg': 'NaN', 'Cr': 'NaN',
-                    'Zn': 'NaN', 'Ti': 'NaN'}, ignore_index=True)
+                    'Zn': 'NaN', 'Ti': 'NaN'}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
                 continue
 
             # Adding the data to the dataframe with the methods to get price and CO2 like before
@@ -179,7 +184,7 @@ if uploaded_file is not None:
 
             # Since no scrap is used, we add directly the raw materials data with a loop
             for i in range(len(optimized_co2_without_scrap)):
-                df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'CO2', 'Use scrap': 'No', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_co2_without_scrap[i],
                     'CO2': db.get_total_co2(optimized_co2_without_scrap)[i], 'Mass': optimized_co2_without_scrap[i],
@@ -190,7 +195,9 @@ if uploaded_file is not None:
                     'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_co2_without_scrap[i],
                     'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_co2_without_scrap[i],
                     'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_co2_without_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_without_scrap[i]})
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_without_scrap[i]}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
+
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_co2_without_scrap[i]
                 mass_total += optimized_co2_without_scrap[i]
                 si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_co2_without_scrap[i]
@@ -203,11 +210,12 @@ if uploaded_file is not None:
                 ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_co2_without_scrap[i]
                 
             # lastly, add last line with total values of all the components
-            df_display.append({
+            new_line = {
                 'Alloy': alloy_name, 'Optimization': 'CO2', 'Use scrap': 'No', 'Product': 'Total',
                 'Price': price_total, 'CO2': db.get_total_co2(optimized_co2_without_scrap)[-1],
                 'Mass': mass_total, 'Si': si_total, 'Fe': fe_total, 'Cu': cu_total, 'Mn': mn_total,
-                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total})
+                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total}
+            df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
 
 
 # ===================================================================================================================
@@ -215,12 +223,13 @@ if uploaded_file is not None:
 # ===================================================================================================================
 
             try:
-                optimized_price_with_scrap = db.optimise_cost_with_scrap(id_site=alloy_site_code, id_alloy=alloy_id, id_scrap=0)
+                optimized_price_with_scrap = db.optimise_cost_with_scrap(id_site=alloy_site_code, id_alloy=alloy_id, id_scrap='S0')
             except ValueError:
-                df_display = df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'Price-Error', 'Use scrap': 'Yes', 'Product': 'NaN', 'Price': 'NaN',
                     'CO2': 'NaN', 'Mass': 'NaN', 'Si': 'NaN', 'Fe': 'NaN', 'Cu': 'NaN', 'Mn': 'NaN', 'Mg': 'NaN', 'Cr': 'NaN',
-                    'Zn': 'NaN', 'Ti': 'NaN'}, ignore_index=True)
+                    'Zn': 'NaN', 'Ti': 'NaN'}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
                 continue
 
             # Adding the data to the dataframe with the methods to get price and CO2
@@ -230,9 +239,9 @@ if uploaded_file is not None:
 
             # Adding the scrap data
             # Same way of reasoning as before
-            df_display.append({
+            new_line = {
                 'Alloy': alloy_name, 'Optimization': 'Price', 'Use scrap': 'Yes', 'Product': scrap_name,
-                'Price': db.get_cost_scrap(alloy_site_code, id_scrap=0)*optimized_price_with_scrap[-1],
+                'Price': db.get_cost_scrap(alloy_site_code, id_scrap='S0')*optimized_price_with_scrap[-1],
                 'CO2': 0., 'Mass': optimized_price_with_scrap[-1],
                 'Si': db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_price_with_scrap[-1],
                 'Fe': db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_price_with_scrap[-1],
@@ -241,8 +250,10 @@ if uploaded_file is not None:
                 'Mg': db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_price_with_scrap[-1],
                 'Cr': db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_price_with_scrap[-1],
                 'Zn': db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_price_with_scrap[-1],
-                'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_price_with_scrap[-1]})
-            price_total += db.get_cost_scrap(alloy_site_code, id_scrap=0)*optimized_price_with_scrap[-1]
+                'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_price_with_scrap[-1]}
+            df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
+
+            price_total += db.get_cost_scrap(alloy_site_code, id_scrap='S0')*optimized_price_with_scrap[-1]
             mass_total += optimized_price_with_scrap[-1]
             si_total += db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_price_with_scrap[-1]
             fe_total += db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_price_with_scrap[-1]
@@ -255,7 +266,7 @@ if uploaded_file is not None:
 
             # Raw materials data
             for i in range(len(optimized_price_with_scrap)-1):
-                df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'Price', 'Use scrap': 'Yes', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_price_with_scrap[i],
                     'CO2': db.get_total_co2(optimized_price_with_scrap)[i], 'Mass': optimized_price_with_scrap[i],
@@ -266,7 +277,9 @@ if uploaded_file is not None:
                     'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_price_with_scrap[i],
                     'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_price_with_scrap[i],
                     'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_price_with_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_with_scrap[i]})
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_with_scrap[i]}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
+
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_price_with_scrap[i]
                 mass_total += optimized_price_with_scrap[i]
                 si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_price_with_scrap[i]
@@ -279,11 +292,12 @@ if uploaded_file is not None:
                 ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_with_scrap[i]
 
             #then, add last line with total values of all the components
-            df_display.append({
+            new_line = {
                 'Alloy': alloy_name, 'Optimization': 'Price', 'Use scrap': 'Yes', 'Product': 'Total',
                 'Price': price_total, 'CO2': db.get_total_co2(optimized_price_with_scrap)[-1],
                 'Mass': mass_total, 'Si': si_total, 'Fe': fe_total, 'Cu': cu_total, 'Mn': mn_total,
-                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total})
+                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total}
+            df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
             
 
 # ===================================================================================================================
@@ -293,10 +307,11 @@ if uploaded_file is not None:
             try:
                 optimized_price_without_scrap = db.optimise_cost_without_scrap(id_site=alloy_site_code, id_alloy=alloy_id)
             except ValueError:
-                df_display = df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'Price-Error', 'Use scrap': 'No', 'Product': 'NaN', 'Price': 'NaN',
                     'CO2': 'NaN', 'Mass': 'NaN', 'Si': 'NaN', 'Fe': 'NaN', 'Cu': 'NaN', 'Mn': 'NaN', 'Mg': 'NaN',
-                    'Cr': 'NaN', 'Zn': 'NaN', 'Ti': 'NaN'}, ignore_index=True)
+                    'Cr': 'NaN', 'Zn': 'NaN', 'Ti': 'NaN'}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
                 continue
 
             # Adding the data to the dataframe with the methods to get price and CO2 like before
@@ -304,7 +319,7 @@ if uploaded_file is not None:
 
             # Since no scrap is used, we add directly the raw materials data with a loop
             for i in range(len(optimized_price_without_scrap)):
-                df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'Price', 'Use scrap': 'No', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_price_without_scrap[i],
                     'CO2': db.get_total_co2(optimized_price_without_scrap)[i], 'Mass': optimized_price_without_scrap[i],
@@ -315,7 +330,9 @@ if uploaded_file is not None:
                     'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_price_without_scrap[i],
                     'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_price_without_scrap[i],
                     'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_price_without_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_without_scrap[i]})
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_without_scrap[i]}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
+
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_price_without_scrap[i]
                 mass_total += optimized_price_without_scrap[i]
                 si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_price_without_scrap[i]
@@ -328,11 +345,12 @@ if uploaded_file is not None:
                 ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_price_without_scrap[i]
                 
             # lastly, add last line with total values of all the components
-            df_display.append({
+            new_line = {
                 'Alloy': alloy_name, 'Optimization': 'Price', 'Use scrap': 'No', 'Product': 'Total',
                 'Price': price_total, 'CO2': db.get_total_co2(optimized_price_without_scrap)[-1],
                 'Mass': mass_total, 'Si': si_total, 'Fe': fe_total, 'Cu': cu_total, 'Mn': mn_total,
-                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total})
+                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total}
+            df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
 
 
 # ===================================================================================================================
@@ -340,12 +358,13 @@ if uploaded_file is not None:
 # ===================================================================================================================
 
             try:
-                optimized_mass_with_scrap = db.optimise_utilisation_scrap(id_site=alloy_site_code, id_alloy=alloy_id, id_scrap=0)
+                optimized_mass_with_scrap = db.optimise_utilisation_scrap(id_site=alloy_site_code, id_alloy=alloy_id, id_scrap='S0')
             except ValueError:
-                df_display = df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'Mass-Error', 'Use scrap': 'Yes', 'Product': 'NaN', 'Price': 'NaN',
                     'CO2': 'NaN', 'Mass': 'NaN', 'Si': 'NaN', 'Fe': 'NaN', 'Cu': 'NaN', 'Mn': 'NaN',
-                    'Mg': 'NaN', 'Cr': 'NaN', 'Zn': 'NaN', 'Ti': 'NaN'}, ignore_index=True)
+                    'Mg': 'NaN', 'Cr': 'NaN', 'Zn': 'NaN', 'Ti': 'NaN'}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
                 continue
 
             # Adding the data to the dataframe with the methods to get price and CO2
@@ -355,9 +374,9 @@ if uploaded_file is not None:
 
             # Adding the scrap data
             # Same way of reasoning as before
-            df_display.append({
+            new_line = {
                 'Alloy': alloy_name, 'Optimization': 'Scrap utilization', 'Use scrap': 'Yes', 'Product': scrap_name,
-                'Price': db.get_cost_scrap(alloy_site_code, id_scrap=0)*optimized_mass_with_scrap[-1],
+                'Price': db.get_cost_scrap(alloy_site_code, id_scrap='S0')*optimized_mass_with_scrap[-1],
                 'CO2': 0., 'Mass': optimized_mass_with_scrap[-1],
                 'Si': db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_mass_with_scrap[-1],
                 'Fe': db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_mass_with_scrap[-1],
@@ -366,8 +385,10 @@ if uploaded_file is not None:
                 'Mg': db.get_composition_raw_material(list_id_raw_materials[4])[4]*optimized_mass_with_scrap[-1],
                 'Cr': db.get_composition_raw_material(list_id_raw_materials[5])[5]*optimized_mass_with_scrap[-1],
                 'Zn': db.get_composition_raw_material(list_id_raw_materials[6])[6]*optimized_mass_with_scrap[-1],
-                'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_mass_with_scrap[-1]})
-            price_total += db.get_cost_scrap(alloy_site_code, id_scrap=0)*optimized_mass_with_scrap[-1]
+                'Ti': db.get_composition_raw_material(list_id_raw_materials[7])[7]*optimized_mass_with_scrap[-1]}
+            df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
+
+            price_total += db.get_cost_scrap(alloy_site_code, id_scrap='S0')*optimized_mass_with_scrap[-1]
             mass_total += optimized_mass_with_scrap[-1]
             si_total += db.get_composition_raw_material(list_id_raw_materials[0])[0]*optimized_mass_with_scrap[-1]
             fe_total += db.get_composition_raw_material(list_id_raw_materials[1])[1]*optimized_mass_with_scrap[-1]
@@ -380,7 +401,7 @@ if uploaded_file is not None:
 
             # Raw materials data
             for i in range(len(optimized_mass_with_scrap)-1):
-                df_display.append({
+                new_line = {
                     'Alloy': alloy_name, 'Optimization': 'Scrap utilization', 'Use scrap': 'Yes', 'Product': list_raw_materials[i],
                     'Price': db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_mass_with_scrap[i],
                     'CO2': db.get_total_co2(optimized_mass_with_scrap)[i], 'Mass': optimized_mass_with_scrap[i],
@@ -391,7 +412,9 @@ if uploaded_file is not None:
                     'Mg': db.get_composition_raw_material(list_id_raw_materials[4])*optimized_mass_with_scrap[i],
                     'Cr': db.get_composition_raw_material(list_id_raw_materials[5])*optimized_mass_with_scrap[i],
                     'Zn': db.get_composition_raw_material(list_id_raw_materials[6])*optimized_mass_with_scrap[i],
-                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_mass_with_scrap[i]})
+                    'Ti': db.get_composition_raw_material(list_id_raw_materials[7])*optimized_mass_with_scrap[i]}
+                df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
+
                 price_total += db.get_cost_raw_material(alloy_site_code, list_id_raw_materials[i])*optimized_mass_with_scrap[i]
                 mass_total += optimized_mass_with_scrap[i]
                 si_total += db.get_composition_raw_material(list_id_raw_materials[0])*optimized_mass_with_scrap[i]
@@ -404,11 +427,12 @@ if uploaded_file is not None:
                 ti_total += db.get_composition_raw_material(list_id_raw_materials[7])*optimized_mass_with_scrap[i]
 
             #then, add last line with total values of all the components
-            df_display.append({
+            new_line = {
                 'Alloy': alloy_name, 'Optimization': 'Scrap utilization', 'Use scrap': 'Yes', 'Product': 'Total',
                 'Price': price_total, 'CO2': db.get_total_co2(optimized_mass_with_scrap)[-1],
                 'Mass': mass_total, 'Si': si_total, 'Fe': fe_total, 'Cu': cu_total, 'Mn': mn_total,
-                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total})
+                'Mg': mg_total, 'Cr': cr_total, 'Zn': zn_total, 'Ti': ti_total}
+            df_display = pd.concat(df_display, pd.DataFrame([new_line]), ignore_index=True)
 
 
 
