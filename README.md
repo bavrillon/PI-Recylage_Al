@@ -101,7 +101,7 @@ openpyxl==3.1.5
 ---
 
 ## Stable version
-Tagged at commit : 
+Tagged at commit : c55944c7bb5ba340254580b7b6c48de6d65ebe76
 
 ---
 
