@@ -5,15 +5,14 @@ import typing as List
 
 def build_strategy_chart(df: pd.DataFrame) -> alt.Chart:
     df2 = df.rename(columns={
-        "cost":  "Cost (USD)",
-        "co2":   "CO₂ (t)",
-        "scrap": "Scrap (%)",
+        "cost":  "Optimized cost (USD)",
+        "co2":   "Optimized CO₂ (t)",
     })
 
     folded = (
         alt.Chart(df2)
         .transform_fold(
-            ["Cost (USD)", "CO₂ (t)", "Scrap (%)"],
+            ["Optimized cost (USD)", "Optimized CO₂ (t)"],
             as_=["metric", "value"]
         )
         .mark_bar()
