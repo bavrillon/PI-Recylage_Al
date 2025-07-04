@@ -442,10 +442,8 @@ else :
 
                     cost_with = db.get_total_cost(optimised_co2_scrap, ID_SITE, ID_SCRAP)[-1]
                     co2_with = db.get_total_co2(optimised_co2_scrap)[-1]
-                    scrap_with = optimised_co2_scrap[-1] * 100  
                     cost_without = db.get_total_cost(optimised_co2_no_scrap, ID_SITE)[-1]
                     co2_without = db.get_total_co2(optimised_co2_no_scrap)[-1]
-                    scrap_without = 0.0
 
                 df = pd.DataFrame([
                     {
@@ -453,14 +451,12 @@ else :
                         "strategy": "with scrap",
                         "cost": cost_with,
                         "co2": co2_with,
-                        "scrap": scrap_with,
                     },
                     {
                         "alloy": ID_ALLOY,
                         "strategy": "no scrap",
                         "cost": cost_without,
                         "co2": co2_without,
-                        "scrap": scrap_without,
                     },
                 ])
                 st.altair_chart(
