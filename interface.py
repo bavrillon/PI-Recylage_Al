@@ -38,17 +38,17 @@ currency = str(c5.selectbox('Currency of the costs', currencies['name']))
 
 st.write('Choose the composition of the scrap (%):')
 c6, c7, c8, c9, c10, c11, c12, c13 = st.columns(8)
-si = c6.number_input('Si', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")
-fe = c7.number_input('Fe', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")
-cu = c8.number_input('Cu', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")
-mn = c9.number_input('Mn', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")
-mg = c10.number_input('Mg', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")
-cr = c11.number_input('Cr', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")
-zn = c12.number_input('Zn', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")
-ti = c13.number_input('Ti', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")
+si = c6.number_input('Si', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")/100
+fe = c7.number_input('Fe', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")/100
+cu = c8.number_input('Cu', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")/100
+mn = c9.number_input('Mn', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")/100
+mg = c10.number_input('Mg', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")/100
+cr = c11.number_input('Cr', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")/100
+zn = c12.number_input('Zn', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")/100
+ti = c13.number_input('Ti', min_value = 0.0, max_value = 100.0, step = 0.00001, format = "%0.6f")/100
 
 
-if si + fe + cu + mn + mg + cr + zn + ti > 100 :
+if si + fe + cu + mn + mg + cr + zn + ti > 1 :
     st.warning("The sum of compositions cannot be greater than 100%", icon="⚠️")
 
 else :
@@ -81,7 +81,7 @@ else :
         with conn.session as session:
             session.execute(
                 insert_compo,
-                dict(compo_id = compo_id, si = si/100, fe = fe/100, cu = cu/100, mn = mn/100, mg = mg/100, cr = cr/100, zn = zn/100, ti = ti/100)
+                dict(compo_id = compo_id, si = si, fe = fe, cu = cu, mn = mn, mg = mg, cr = cr, zn = zn, ti = ti)
             )
             session.commit()
 

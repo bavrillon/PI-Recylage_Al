@@ -366,7 +366,7 @@ class Database:
                 * self.get_composition_scrap(id_scrap)[k]
                 == composition_alloy_wished[k]
             )
-
+        problem.writeLP("resultat-optim.lp")
         problem.solve()
         if pulp.LpStatus[problem.status] != "Optimal":
             raise ValueError(
