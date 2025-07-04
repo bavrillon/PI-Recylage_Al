@@ -1,7 +1,5 @@
 import altair as alt
 import pandas as pd
-import typing as List
-
 
 
 def build_strategy_chart(df: pd.DataFrame) -> alt.Chart:
