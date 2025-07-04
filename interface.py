@@ -5,9 +5,8 @@ import streamlit as st
 from data.db_tools import Database
 from sqlalchemy import text
 import pandas as pd
-import pytest
 
-db = Database(path.join(path.dirname(__file__), "data.db"))
+db = Database(path.join(path.dirname(path.realpath(__file__)), "data", "data.db"))
 
 
 #gets the data from the database
