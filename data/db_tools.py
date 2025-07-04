@@ -63,9 +63,7 @@ class Database:
         composition_id = row[0]
 
         elements = self.get_elements()
-        query = (
-            f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
-        )
+        query = f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
         cursor.execute(query, (composition_id,))
         row = cursor.fetchone()
         conn.close()
@@ -73,7 +71,9 @@ class Database:
             raise ValueError("Composition not found")
         return list(row)
 
-    def get_composition_raw_material(self, id_raw_material: int) -> List[float]:
+    def get_composition_raw_material(
+        self, id_raw_material: int
+    ) -> List[float]:
         """
         Get the list of proportions of each element in the raw material in the order of self.elements.
         """
@@ -90,9 +90,7 @@ class Database:
         composition_id = row[0]
 
         elements = self.get_elements()
-        query = (
-            f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
-        )
+        query = f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
         cursor.execute(query, (composition_id,))
         row = cursor.fetchone()
         conn.close()
@@ -116,9 +114,7 @@ class Database:
         composition_id = row[0]
 
         elements = self.get_elements()
-        query = (
-            f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
-        )
+        query = f"SELECT {', '.join(elements)} FROM composition WHERE composition_id = ?"
         cursor.execute(query, (composition_id,))
         row = cursor.fetchone()
         conn.close()
@@ -168,7 +164,9 @@ class Database:
         conn.close()
         return [row[0] for row in rows]
 
-    def get_cost_raw_material(self, id_site: str, id_raw_material: int) -> float:
+    def get_cost_raw_material(
+        self, id_site: str, id_raw_material: int
+    ) -> float:
         """
         Get the cost of a raw material in USD for a given site.
         """
@@ -193,7 +191,9 @@ class Database:
         if currency == "USD":
             rate = 1.0
         else:
-            cursor.execute("SELECT USD FROM currency WHERE name = ?", (currency,))
+            cursor.execute(
+                "SELECT USD FROM currency WHERE name = ?", (currency,)
+            )
             rate_row = cursor.fetchone()
             if rate_row is None:
                 conn.close()
@@ -237,14 +237,18 @@ class Database:
         recycling_row = cursor.fetchone()
         if recycling_row is None:
             conn.close()
-            raise ValueError("Recycling cost not found for this site and shape type")
+            raise ValueError(
+                "Recycling cost not found for this site and shape type"
+            )
         recycling_cost = recycling_row[0]
         total_cost = cost + recycling_cost
 
         if currency == "USD":
             rate = 1.0
         else:
-            cursor.execute("SELECT USD FROM currency WHERE name = ?", (currency,))
+            cursor.execute(
+                "SELECT USD FROM currency WHERE name = ?", (currency,)
+            )
             rate_row = cursor.fetchone()
             if rate_row is None:
                 conn.close()
@@ -275,7 +279,10 @@ class Database:
         return co2_values
 
     def get_total_cost(
-        self, composition: list[float], site_code: str, id_scrap: Optional[int] = None
+        self,
+        composition: list[float],
+        site_code: str,
+        id_scrap: Optional[int] = None,
     ) -> List[float]:
         """
         Calculate cost contribution for each raw material and optional scrap,
@@ -317,7 +324,9 @@ class Database:
         Minimize CO2 emissions for a given alloy and site using raw materials
         and one scrap. Returns the optimal composition.
         """
-        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
+        raw_materials = (
+            self.get_raw_materials_id()
+        )  # List of the ID of the raw materials
         composition_ids = raw_materials + [
             id_scrap
         ]  # List of the ID of the raw materials + the scrap to be mixed
@@ -331,9 +340,14 @@ class Database:
             lowBound=0,
             upBound=1,
         )
-        problem = pulp.LpProblem(name="optimise_co2_with_scrap", sense=pulp.LpMinimize)
+        problem = pulp.LpProblem(
+            name="optimise_co2_with_scrap", sense=pulp.LpMinimize
+        )
         problem += pulp.lpSum(
-            [composition[id] * self.get_co2_raw_material(id) for id in raw_materials]
+            [
+                composition[id] * self.get_co2_raw_material(id)
+                for id in raw_materials
+            ]
         )  # i = ID (raw material only) and j = int
 
         # Constraint sum compositions = 1 :
@@ -343,11 +357,13 @@ class Database:
             problem += (
                 pulp.lpSum(
                     [
-                        composition[id] * self.get_composition_raw_material(id)[k]
+                        composition[id]
+                        * self.get_composition_raw_material(id)[k]
                         for id in raw_materials
                     ]
                 )
-                + composition[id_scrap] * self.get_composition_scrap(id_scrap)[k]
+                + composition[id_scrap]
+                * self.get_composition_scrap(id_scrap)[k]
                 == composition_alloy_wished[k]
             )
 
@@ -357,7 +373,9 @@ class Database:
                 f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}"
             )
 
-        optimised_composition = [composition[i].varValue for i in composition_ids]
+        optimised_composition = [
+            composition[i].varValue for i in composition_ids
+        ]
         return optimised_composition
 
     def optimise_co2_without_scrap(self, id_site: str, id_alloy: str) -> list:
@@ -365,10 +383,10 @@ class Database:
         Minimize CO2 emissions for a given alloy and site using only raw
         materials. Returns the optimal composition.
         """
-        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
-        composition_ids = (
-            raw_materials  # List of the ID of the raw materials + the scrap to be mixed
-        )
+        raw_materials = (
+            self.get_raw_materials_id()
+        )  # List of the ID of the raw materials
+        composition_ids = raw_materials  # List of the ID of the raw materials + the scrap to be mixed
         composition_alloy_wished = self.get_composition_alloy(id_alloy)
 
         # Optimisation pb
@@ -383,7 +401,10 @@ class Database:
             name="optimise_co2_without_scrap", sense=pulp.LpMinimize
         )
         problem += pulp.lpSum(
-            [composition[id] * self.get_co2_raw_material(id) for id in raw_materials]
+            [
+                composition[id] * self.get_co2_raw_material(id)
+                for id in raw_materials
+            ]
         )  # i = ID raw material  and j = int
 
         # Constraint sum compositions = 1 :
@@ -393,7 +414,8 @@ class Database:
             problem += (
                 pulp.lpSum(
                     [
-                        composition[id] * self.get_composition_raw_material(id)[k]
+                        composition[id]
+                        * self.get_composition_raw_material(id)[k]
                         for id in raw_materials
                     ]
                 )
@@ -406,7 +428,9 @@ class Database:
                 f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}"
             )
 
-        optimised_composition = [composition[i].varValue for i in composition_ids]
+        optimised_composition = [
+            composition[i].varValue for i in composition_ids
+        ]
         return optimised_composition
 
     def optimise_cost_with_scrap(
@@ -416,7 +440,9 @@ class Database:
         Minimize cost for a given alloy and site using raw materials and one
         scrap. Returns the optimal composition.
         """
-        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
+        raw_materials = (
+            self.get_raw_materials_id()
+        )  # List of the ID of the raw materials
         composition_ids = raw_materials + [
             id_scrap
         ]  # List of the ID of the raw materials + the scrap to be mixed
@@ -430,7 +456,9 @@ class Database:
             lowBound=0,
             upBound=1,
         )
-        problem = pulp.LpProblem(name="optimise_cost_with_scrap", sense=pulp.LpMinimize)
+        problem = pulp.LpProblem(
+            name="optimise_cost_with_scrap", sense=pulp.LpMinimize
+        )
         problem += pulp.lpSum(
             [
                 composition[id] * self.get_cost_raw_material(id_site, id)
@@ -447,11 +475,13 @@ class Database:
             problem += (
                 pulp.lpSum(
                     [
-                        composition[id] * self.get_composition_raw_material(id)[k]
+                        composition[id]
+                        * self.get_composition_raw_material(id)[k]
                         for id in raw_materials
                     ]
                 )
-                + composition[id_scrap] * self.get_composition_scrap(id_scrap)[k]
+                + composition[id_scrap]
+                * self.get_composition_scrap(id_scrap)[k]
                 == composition_alloy_wished[k]
             )
 
@@ -461,7 +491,9 @@ class Database:
                 f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}"
             )
 
-        optimised_composition = [composition[i].varValue for i in composition_ids]
+        optimised_composition = [
+            composition[i].varValue for i in composition_ids
+        ]
         return optimised_composition
 
     def optimise_cost_without_scrap(self, id_site: str, id_alloy: str) -> list:
@@ -472,10 +504,10 @@ class Database:
         cost_raw_materials = self.get_cost_raw_materials(
             id_site
         )  # List of the cost of the raw materials
-        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
-        composition_ids = (
-            raw_materials  # List of the ID of the raw materials + the scrap to be mixed
-        )
+        raw_materials = (
+            self.get_raw_materials_id()
+        )  # List of the ID of the raw materials
+        composition_ids = raw_materials  # List of the ID of the raw materials + the scrap to be mixed
         composition_alloy_wished = self.get_composition_alloy(id_alloy)
 
         # Optimisation pb
@@ -503,7 +535,8 @@ class Database:
             problem += (
                 pulp.lpSum(
                     [
-                        composition[id] * self.get_composition_raw_material(id)[k]
+                        composition[id]
+                        * self.get_composition_raw_material(id)[k]
                         for id in raw_materials
                     ]
                 )
@@ -516,7 +549,9 @@ class Database:
                 f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}"
             )
 
-        optimised_composition = [composition[i].varValue for i in composition_ids]
+        optimised_composition = [
+            composition[i].varValue for i in composition_ids
+        ]
         return optimised_composition
 
     def optimise_utilisation_scrap(
@@ -526,7 +561,9 @@ class Database:
         Maximize the use of a given scrap for a given alloy and site while
         respecting the alloy composition. Returns the optimal composition.
         """
-        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
+        raw_materials = (
+            self.get_raw_materials_id()
+        )  # List of the ID of the raw materials
         composition_ids = raw_materials + [
             id_scrap
         ]  # List of the ID of the raw materials + the scrap to be mixed
@@ -543,7 +580,9 @@ class Database:
         problem = pulp.LpProblem(
             name="optimise_utilisation_scrap", sense=pulp.LpMaximize
         )
-        problem += composition[id_scrap]  # Maximize the proportion of the scrap
+        problem += composition[
+            id_scrap
+        ]  # Maximize the proportion of the scrap
 
         # Constraint sum compositions = 1 :
         problem += pulp.lpSum([composition[i] for i in composition_ids]) == 1
@@ -552,11 +591,13 @@ class Database:
             problem += (
                 pulp.lpSum(
                     [
-                        composition[id] * self.get_composition_raw_material(id)[k]
+                        composition[id]
+                        * self.get_composition_raw_material(id)[k]
                         for id in raw_materials
                     ]
                 )
-                + composition[id_scrap] * self.get_composition_scrap(id_scrap)[k]
+                + composition[id_scrap]
+                * self.get_composition_scrap(id_scrap)[k]
             ) == composition_alloy_wished[k]
 
         problem.solve()
@@ -565,6 +606,8 @@ class Database:
                 f"Composition optimization failed. Reason = {pulp.LpStatus[problem.status]}"
             )
 
-        optimised_composition = [composition[i].varValue for i in composition_ids]
+        optimised_composition = [
+            composition[i].varValue for i in composition_ids
+        ]
         print(composition_alloy_wished)
         return optimised_composition
