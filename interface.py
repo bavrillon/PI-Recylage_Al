@@ -3,6 +3,8 @@ import streamlit as st
 from data.db_tools import Database
 from sqlalchemy import text
 import pandas as pd
+from chart_utils import build_strategy_chart
+
 
 db = Database(path.join(path.dirname(path.realpath(__file__)), "data", "data.db"))
 
@@ -412,6 +414,57 @@ else :
             st.table(pd.DataFrame([optimised],
                                   columns=elements+['scrap'],
                                   index=['with scrap']))
+            
+    
+    if st.button("Graphic display"):
+        if not st.session_state.scrap_saved:
+            st.warning("Scrap was not saved", icon="⚠️")
+        else:
+            st.session_state.show_graphic = True
+
+        if st.session_state.show_graphic:
+
+            for alloy_select in alloys_from_site['name']:
+
+                query = text("SELECT alloy_id FROM alloy WHERE name = :name")
+                with conn.session as session:
+                    ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
+
+                st.subheader(alloy_select)
+                with st.spinner("Optimizing with scrap...", show_time=True):
+                    try:
+                        optimised_co2_scrap = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                        optimised_co2_no_scrap = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+                    except ValueError:
+                        st.warning("Unfeasible", icon='❌')
+
+                    cost_with = db.get_total_cost(optimised_co2_scrap, ID_SITE, ID_SCRAP)[-1]
+                    co2_with = db.get_total_co2(optimised_co2_scrap)[-1]
+                    scrap_with = optimised_co2_scrap[-1] * 100  
+                    cost_without = db.get_total_cost(optimised_co2_no_scrap, ID_SITE)[-1]
+                    co2_without = db.get_total_co2(optimised_co2_no_scrap)[-1]
+                    scrap_without = 0.0
+
+                df = pd.DataFrame([
+                    {
+                        "alloy": ID_ALLOY,
+                        "strategy": "with scrap",
+                        "cost": cost_with,
+                        "co2": co2_with,
+                        "scrap": scrap_with,
+                    },
+                    {
+                        "alloy": ID_ALLOY,
+                        "strategy": "no scrap",
+                        "cost": cost_without,
+                        "co2": co2_without,
+                        "scrap": scrap_without,
+                    },
+                ])
+                st.altair_chart(
+                    build_strategy_chart(df),
+                )
+            
 
 
     #deletes the table entry "compo_id" in the table composition once the optimization is done
