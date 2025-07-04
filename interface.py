@@ -246,13 +246,31 @@ else :
                         session.commit()
 
     if st.checkbox('Show recycling cost from chosen site'):
-        edited_recycling_costs = st.data_editor(conn.query(f"SELECT * FROM recycling_cost WHERE site_code = '{ID_SITE}'"))
-        st.write('(data cannot be modified)')
+        edited_recycling_costs = st.data_editor(conn.query(f"SELECT * FROM recycling_cost WHERE site_code = '{ID_SITE}'"),
+                                                disabled=['recycling_cost_id','site_code','shape_type_id'])
+        if st.button('Save modifications to database'):
+            for _,row in edited_recycling_costs.iterrows():
+                recycling_cost_id = row['recycling_cost_id']
+                recycling_cost_per_t = row['recycling_cost_per_t']
+                update_recycling = text('UPDATE recycling_cost SET recycling_cost_per_t=:recycling_cost_per_t WHERE recycling_cost_id=:recycling_cost_id')
+                with conn.session as session:
+                    session.execute(update_recycling, dict(recycling_cost_per_t=recycling_cost_per_t, recycling_cost_id=recycling_cost_id))
+                    session.commit()
+        st.write('(only recycling_cost_per_t can be modified)')
     if st.checkbox('Show chosen currency'):
-        edited_currencies = st.data_editor(conn.query(f"SELECT * FROM currency WHERE name = '{currency}'"))
-        st.write('(data cannot be modified)')
+        edited_currencies = st.data_editor(conn.query(f"SELECT * FROM currency WHERE name = '{currency}'"), disabled=['name'])
+        if st.button('Save modifications to database'):
+            for _,row in edited_currencies.iterrows():
+                USD = row['USD']
+                name = row['name']
+                update_currency = text('UPDATE currency SET USD=:USD WHERE name=:name')
+                with conn.session as session:
+                    session.execute(update_currency, dict(USD=USD, name=name))
+                    session.commit()
+        st.write('(name cannot be modified)')
     if st.checkbox('Show chosen site'):
-        edited_sites = st.data_editor(conn.query(f"SELECT * FROM site WHERE site_code = '{ID_SITE}'"))
+        edited_sites = st.data_editor(conn.query(f"SELECT * FROM site WHERE site_code = '{ID_SITE}'"),
+                                      disabled=['site_code','name','premium_per_t','currency'])
         st.write('(data cannot be modified)')
 
     
