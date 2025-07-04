@@ -1,5 +1,3 @@
-#TRUCS A FAIRE : excels + afficher message si infaisable
-
 from os import path
 import streamlit as st
 from data.db_tools import Database
