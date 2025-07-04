@@ -48,7 +48,7 @@ ti = c13.number_input('Ti', min_value = 0.0, max_value = 100.0, step = 0.00001, 
 
 
 if si + fe + cu + mn + mg + cr + zn + ti > 100 :
-    st.write("The sum of compositions cannot be greater than 100%")
+    st.warning("The sum of compositions cannot be greater than 100%", icon="⚠️")
 
 else :
 
@@ -59,11 +59,10 @@ else :
     compo_id = int(conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1) #the scrap composition ID is the last ID in the composition table
     compo_id = 'C' + str(compo_id)
 
-    save=False
+    if 'scrap_saved' not in st.session_state:
+        st.session_state.scrap_saved = False
 
     if st.button('Save the scrap'):
-
-        save=True
 
         #if the user presses the "save the scrap" button multiple times
         query_old_compo = text("SELECT composition_id FROM scrap WHERE scrap_id = :ID_SCRAP")
@@ -106,6 +105,8 @@ else :
                     currency = currency) 
             )
             session.commit()
+        
+        st.session_state.scrap_saved = True
     
     
     alloys_from_site = conn.query(f"""SELECT * FROM alloy a JOIN composition c
@@ -304,8 +305,8 @@ else :
         st.session_state.alloy_co2 = None
 
     if st.button('Optimize CO2 with/without scrap'):
-        if not save:
-            st.write("Scrap was not saved")
+        if not st.session_state.scrap_saved:
+            st.warning("Scrap was not saved", icon="⚠️")
         else:
             st.session_state.show_co2 = True
 
@@ -341,8 +342,8 @@ else :
         st.session_state.alloy_cost = None
 
     if st.button('Optimize cost with/without scrap'):
-        if not save:
-            st.write("Scrap was not saved")
+        if not st.session_state.scrap_saved:
+            st.warning("Scrap was not saved", icon="⚠️")
         else:
             st.session_state.show_cost = True
 
@@ -378,8 +379,8 @@ else :
         st.session_state.alloy_material = None
 
     if st.button('Optimize use of materials with scrap'):
-        if not save:
-            st.write("Scrap was not saved")
+        if not st.session_state.scrap_saved:
+            st.warning("Scrap was not saved", icon="⚠️")
         else:
             st.session_state.show_material = True
 
