@@ -127,7 +127,7 @@ class Database:
     # Cost and Emissions Calculations
     # ======================================================================
     
-     def get_co2_raw_material(self, id_raw_material: int) -> float:
+    def get_co2_raw_material(self, id_raw_material: int) -> float:
         """
         Get CO2 emissions per ton of a raw material.
         """
