@@ -36,7 +36,7 @@ class Database:
         conn.close()
         return elements
 
-    def get_raw_material_ids_id(self) -> List[Any]:
+    def get_raw_materials_id(self) -> List[str]:
         """
         Returns the list of all raw material IDs.
         """
@@ -126,7 +126,7 @@ class Database:
             raise ValueError("Composition not found")
         return list(row)
 
-    def get_raw_material_ids_id_name(self):
+    def get_raw_materials_name(self):
         """
         Get the list of all raw material names.
         """
@@ -206,7 +206,7 @@ class Database:
         """
         Get the list of costs in USD for all raw materials for a given site.
         """
-        raw_material_ids = self.get_raw_material_ids_id()
+        raw_material_ids = self.get_raw_materials_id()
         costs = []
         for id_raw_material in raw_material_ids:
             cost = self.get_cost_raw_material(id_site, id_raw_material)
@@ -257,7 +257,7 @@ class Database:
         """
         Calculate CO2 contribution for each raw material and the total.
         """
-        raw_materials = self.get_raw_material_ids_id()
+        raw_materials = self.get_raw_materials_id()
         # If scrap fraction is included, drop the last element
         if len(composition) != len(raw_materials):
             composition = composition[:-1]
@@ -281,7 +281,7 @@ class Database:
         Calculate cost contribution for each raw material and optional scrap,
         returning individual contributions plus total cost.
         """
-        raw_materials = self.get_raw_material_ids_id()
+        raw_materials = self.get_raw_materials_id()
 
         cost_values = []
         total_cost = 0.0
@@ -317,7 +317,7 @@ class Database:
         Minimize CO2 emissions for a given alloy and site using raw materials
         and one scrap. Returns the optimal composition.
         """
-        raw_materials = self.get_raw_material_ids_id()  # List of the ID of the raw materials
+        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
         composition_ids = raw_materials + [
             id_scrap
         ]  # List of the ID of the raw materials + the scrap to be mixed
@@ -365,7 +365,7 @@ class Database:
         Minimize CO2 emissions for a given alloy and site using only raw
         materials. Returns the optimal composition.
         """
-        raw_materials = self.get_raw_material_ids_id()  # List of the ID of the raw materials
+        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
         composition_ids = (
             raw_materials  # List of the ID of the raw materials + the scrap to be mixed
         )
@@ -416,7 +416,7 @@ class Database:
         Minimize cost for a given alloy and site using raw materials and one
         scrap. Returns the optimal composition.
         """
-        raw_materials = self.get_raw_material_ids_id()  # List of the ID of the raw materials
+        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
         composition_ids = raw_materials + [
             id_scrap
         ]  # List of the ID of the raw materials + the scrap to be mixed
@@ -472,7 +472,7 @@ class Database:
         cost_raw_materials = self.get_cost_raw_materials(
             id_site
         )  # List of the cost of the raw materials
-        raw_materials = self.get_raw_material_ids_id()  # List of the ID of the raw materials
+        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
         composition_ids = (
             raw_materials  # List of the ID of the raw materials + the scrap to be mixed
         )
@@ -526,7 +526,7 @@ class Database:
         Maximize the use of a given scrap for a given alloy and site while
         respecting the alloy composition. Returns the optimal composition.
         """
-        raw_materials = self.get_raw_material_ids_id()  # List of the ID of the raw materials
+        raw_materials = self.get_raw_materials_id()  # List of the ID of the raw materials
         composition_ids = raw_materials + [
             id_scrap
         ]  # List of the ID of the raw materials + the scrap to be mixed
