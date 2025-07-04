@@ -121,7 +121,7 @@ else :
 
         st.write('(the column id cannot be modified)')
 
-        if st.button("Save modifications to database"):
+        if st.button("Save modifications to database", key='modif_alloys'):
             for _, row in edited_alloys.iterrows():
 
                 if pd.isna(row["alloy_id"]): #if it is a new alloy
@@ -193,7 +193,7 @@ else :
         edited_raw_materials = st.data_editor(raw.drop(['composition_id'], axis = 1), num_rows="dynamic", disabled=["raw_material_id"])
         st.write('(the column id cannot be modified)')
 
-        if st.button("Save modifications to database"):
+        if st.button("Save modifications to database", key='modif_material'):
             for _, row in edited_raw_materials.iterrows():
 
                 if pd.isna(row["raw_material_id"]): #if it is a new material
@@ -269,7 +269,7 @@ else :
     if st.checkbox('Show recycling cost from chosen site'):
         edited_recycling_costs = st.data_editor(conn.query(f"SELECT * FROM recycling_cost WHERE site_code = '{ID_SITE}'"),
                                                 disabled=['recycling_cost_id','site_code','shape_type_id'])
-        if st.button('Save modifications to database'):
+        if st.button('Save modifications to database', key='modif_recycling'):
             for _,row in edited_recycling_costs.iterrows():
                 recycling_cost_id = row['recycling_cost_id']
                 recycling_cost_per_t = row['recycling_cost_per_t']
@@ -281,7 +281,7 @@ else :
         st.write('(only recycling_cost_per_t can be modified)')
     if st.checkbox('Show chosen currency'):
         edited_currencies = st.data_editor(conn.query(f"SELECT * FROM currency WHERE name = '{currency}'"), disabled=['name'])
-        if st.button('Save modifications to database'):
+        if st.button('Save modifications to database', key='modif_currency'):
             for _,row in edited_currencies.iterrows():
                 USD = row['USD']
                 name = row['name']
