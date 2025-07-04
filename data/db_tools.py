@@ -1,7 +1,7 @@
 import sqlite3
 from os import path
 import pulp
-from typing import List, Any
+from typing import List, Any, Optional
 
 class Database:
     def __init__(self, file_name: str="data.db"):
@@ -12,6 +12,10 @@ class Database:
         self.elements = self.get_elements()
         self.nb_elements = len(self.elements)
 
+    # =============================================================================
+    # Connection management and data retrieval
+    # =============================================================================
+
     def get_connection(self) -> sqlite3.Connection:
         """
         Create and return a SQLite connection object.
@@ -19,9 +23,9 @@ class Database:
         return sqlite3.connect(self.file_name)
 
     def get_elements(self) -> List[str]:
-        """
+        """                             
         Get the list of element names from the composition table.
-        """
+        """                          
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info(composition)")
@@ -38,33 +42,6 @@ class Database:
         conn = self.get_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT raw_material_id FROM raw_material")
-        rows = cursor.fetchall()
-        conn.close()
-        return [row[0] for row in rows]
-    
-    def get_co2_raw_material(self, id_raw_material: int) -> float:
-        """
-        Get CO2 emissions per ton of a raw material.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT t_CO2_per_t FROM raw_material WHERE raw_material_id = ?",
-            (id_raw_material,)
-        )
-        row = cursor.fetchone()
-        conn.close()
-        if row is None:
-            raise ValueError("Raw material not found")
-        return float(row[0])
-    
-    def get_co2_raw_materials(self) -> List[float]:
-        """
-        Get the list of CO2 emissions per ton for all raw materials.
-        """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT t_CO2_per_t FROM raw_material")
         rows = cursor.fetchall()
         conn.close()
         return [row[0] for row in rows]
@@ -134,6 +111,48 @@ class Database:
         if row is None:
             raise ValueError("Composition not found")
         return list(row)
+    
+    def get_raw_materials_name(self):
+        """
+        Get the list of all raw material names.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT name FROM raw_material")
+        rows = cursor.fetchall()
+        conn.close()
+        return [row[0] for row in rows]
+    
+    # ======================================================================
+    # Cost and Emissions Calculations
+    # ======================================================================
+    
+     def get_co2_raw_material(self, id_raw_material: int) -> float:
+        """
+        Get CO2 emissions per ton of a raw material.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT t_CO2_per_t FROM raw_material WHERE raw_material_id = ?",
+            (id_raw_material,)
+        )
+        row = cursor.fetchone()
+        conn.close()
+        if row is None:
+            raise ValueError("Raw material not found")
+        return float(row[0])
+    
+    def get_co2_raw_materials(self) -> List[float]:
+        """
+        Get the list of CO2 emissions per ton for all raw materials.
+        """
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT t_CO2_per_t FROM raw_material")
+        rows = cursor.fetchall()
+        conn.close()
+        return [row[0] for row in rows]
     
     def get_cost_raw_material(self, id_site: str, id_raw_material: int) -> float:
         """
@@ -226,19 +245,13 @@ class Database:
         conn.close()
         return float(total_cost) / rate
     
-    def get_raw_materials_name(self):
+    
+    def get_total_co2(self, composition: List[float]) -> list[float]:
         """
-        Get the list of all raw material names.
+        Calculate CO2 contribution for each raw material and the total.
         """
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT name FROM raw_material")
-        rows = cursor.fetchall()
-        conn.close()
-        return [row[0] for row in rows]
-
-    def get_total_co2(self, composition) -> list[float]:
         raw_materials = self.get_raw_materials()
+        # If scrap fraction is included, drop the last element
         if len(composition) != len(raw_materials):
             composition = composition[:-1]  
 
@@ -254,7 +267,11 @@ class Database:
         co2_values.append(total_co2)  
         return co2_values
     
-    def get_total_cost(self, composition, site_code, id_scrap=None):
+    def get_total_cost(self, composition: list[float], site_code: str, id_scrap: Optional[int] = None)  -> List[float]:
+        """
+        Calculate cost contribution for each raw material and optional scrap,
+        returning individual contributions plus total cost.
+        """
         raw_materials = self.get_raw_materials()
         
         cost_values = []
