@@ -1,4 +1,4 @@
-#TRUCS A FAIRE : excels + améliorer output (faire un joli tableau) + afficher message si infaisable
+#TRUCS A FAIRE : excels + afficher message si infaisable
 
 from os import path
 import streamlit as st
@@ -319,21 +319,20 @@ else :
             with conn.session as session:
                 ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
 
-            scrap_co2_column, no_scrap_co2_column = st.columns(2)
+            with st.spinner("Optimizing with scrap...", show_time=True):
+                optimised_co2_scrap = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+            optimised_co2_scrap = [x*100 for x in optimised_co2_scrap]
 
-            with scrap_co2_column:
-                st.subheader(alloy_select + ' with scrap')
-                with st.spinner("Optimizing with scrap...", show_time=True):
-                    optimised_co2 = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
-                optimised_co2 = [x*100 for x in optimised_co2]
-                st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised_co2)))
+            with st.spinner("Optimizing without scrap...", show_time=True):
+                optimised_co2_no_scrap = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+            optimised_co2_no_scrap = [x*100 for x in optimised_co2_no_scrap]
+            optimised_co2_no_scrap.append('/')
 
-            with no_scrap_co2_column:
-                st.subheader(alloy_select + ' without scrap')
-                with st.spinner("Optimizing without scrap...", show_time=True):
-                    optimised_co2 = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
-                optimised_co2 = [x*100 for x in optimised_co2]
-                st.write("Optimized composition (%):", dict(zip(elements, optimised_co2)))
+            st.subheader(alloy_select)
+            st.write("Optimized composition (%):")
+            st.table(pd.DataFrame([optimised_co2_scrap, optimised_co2_no_scrap],
+                                  columns=elements+['scrap'],
+                                  index=['with scrap', 'without scrap']))
 
 
     if 'show_cost' not in st.session_state:
@@ -356,21 +355,21 @@ else :
             with conn.session as session:
                 ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
 
-            scrap_cost_column, no_scrap_cost_column = st.columns(2)
 
-            with scrap_cost_column:
-                st.subheader(alloy_select + ' with scrap')
-                with st.spinner("Optimizing cost with scrap...", show_time=True):
-                    optimised_cost = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
-                optimised_cost = [x*100 for x in optimised_cost]
-                st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised_cost)))
+            with st.spinner("Optimizing cost with scrap...", show_time=True):
+                optimised_cost_scrap = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+            optimised_cost_scrap = [x*100 for x in optimised_cost_scrap]
 
-            with no_scrap_cost_column:
-                st.subheader(alloy_select + ' without scrap')
-                with st.spinner("Optimizing cost without scrap...", show_time=True):
-                    optimised_cost = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
-                optimised_cost = [x*100 for x in optimised_cost]
-                st.write("Optimized composition (%):", dict(zip(elements, optimised_cost)))
+            with st.spinner("Optimizing cost without scrap...", show_time=True):
+                optimised_cost_no_scrap = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
+            optimised_cost_no_scrap = [x*100 for x in optimised_cost_no_scrap]
+            optimised_cost_no_scrap.append('/')
+
+            st.subheader(alloy_select)
+            st.write("Optimized composition (%):")
+            st.table(pd.DataFrame([optimised_cost_scrap, optimised_cost_no_scrap],
+                                  columns=elements+['scrap'],
+                                  index=['with scrap', 'without scrap']))
 
 
     if 'show_material' not in st.session_state:
@@ -392,11 +391,14 @@ else :
             with conn.session as session:
                 ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
 
-            st.subheader(alloy_select + ' with scrap')
+            st.subheader(alloy_select)
             with st.spinner("Optimizing with scrap...", show_time=True):
                 optimised = db.optimise_utilisation_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
             optimised = [x*100 for x in optimised]
-            st.write("Optimized composition (%):", dict(zip(elements + ['scrap'], optimised)))
+            st.write("Optimized composition (%):")
+            st.table(pd.DataFrame([optimised],
+                                  columns=elements+['scrap'],
+                                  index=['with scrap']))
 
 
     #deletes the table entry "compo_id" in the table composition once the optimization is done
