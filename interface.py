@@ -20,7 +20,8 @@ compositions = conn.query("SELECT * FROM composition")
 shape_types = conn.query("SELECT * FROM shape_type")
 
 
-st.header("Optimization of aluminium alloys")
+st.header("Optimized use of a scrap")
+st.sidebar.markdown("# Optimization of scraps use in aluminium alloys")
 
 
 site_select = st.selectbox('Choose a site', sites['name'])
@@ -466,7 +467,6 @@ else :
                     build_strategy_chart(df),
                 )
             
-
 
     #deletes the table entry "compo_id" in the table composition once the optimization is done
     if st.session_state.show_co2 or st.session_state.show_cost or st.session_state.show_material:
