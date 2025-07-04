@@ -5,6 +5,7 @@ import streamlit as st
 from data.db_tools import Database
 from sqlalchemy import text
 import pandas as pd
+import pytest
 
 db = Database(path.join(path.dirname(__file__), "data.db"))
 
@@ -320,11 +321,17 @@ else :
                 ID_ALLOY = session.execute(query, {"name": alloy_select}).first()[0]
 
             with st.spinner("Optimizing with scrap...", show_time=True):
-                optimised_co2_scrap = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                try:
+                    optimised_co2_scrap = db.optimise_co2_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                except ValueError:
+                    st.warning("Unfeasible", icon='❌')
             optimised_co2_scrap = [x*100 for x in optimised_co2_scrap]
 
             with st.spinner("Optimizing without scrap...", show_time=True):
-                optimised_co2_no_scrap = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+                try:
+                    optimised_co2_no_scrap = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
+                except ValueError:
+                    st.warning("Unfeasible", icon='❌')
             optimised_co2_no_scrap = [x*100 for x in optimised_co2_no_scrap]
             optimised_co2_no_scrap.append('/')
 
@@ -357,11 +364,17 @@ else :
 
 
             with st.spinner("Optimizing cost with scrap...", show_time=True):
-                optimised_cost_scrap = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                try:
+                    optimised_cost_scrap = db.optimise_cost_with_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                except ValueError:
+                    st.warning("Unfeasible", icon='❌')
             optimised_cost_scrap = [x*100 for x in optimised_cost_scrap]
 
             with st.spinner("Optimizing cost without scrap...", show_time=True):
-                optimised_cost_no_scrap = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
+                try:
+                    optimised_cost_no_scrap = db.optimise_cost_without_scrap(ID_SITE, ID_ALLOY)
+                except ValueError:
+                    st.warning("Unfeasible", icon='❌')
             optimised_cost_no_scrap = [x*100 for x in optimised_cost_no_scrap]
             optimised_cost_no_scrap.append('/')
 
@@ -393,7 +406,10 @@ else :
 
             st.subheader(alloy_select)
             with st.spinner("Optimizing with scrap...", show_time=True):
-                optimised = db.optimise_utilisation_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                try:
+                    optimised = db.optimise_utilisation_scrap(ID_SITE, ID_ALLOY, ID_SCRAP)
+                except ValueError:
+                    st.warning("Unfeasible", icon='❌')
             optimised = [x*100 for x in optimised]
             st.write("Optimized composition (%):")
             st.table(pd.DataFrame([optimised],
