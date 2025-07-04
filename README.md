@@ -80,7 +80,6 @@ Once the optimization runs, you’ll get:
 - **OpenPyXL** for Excel report generation  
 
 Recommended environment:
-```text
 python==3.13.5
 streamlit==1.46.1
 pulp==3.2.1
