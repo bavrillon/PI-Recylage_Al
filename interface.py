@@ -21,7 +21,7 @@ shape_types = conn.query("SELECT * FROM shape_type")
 
 
 st.header("Optimized use of a scrap")
-st.sidebar.markdown("# Optimization of scraps use in aluminium alloys")
+st.sidebar.markdown("# Optimization of scrap use in aluminium alloys")
 
 
 site_select = st.selectbox('Choose a site', sites['name'])
