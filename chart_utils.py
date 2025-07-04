@@ -3,30 +3,24 @@ import pandas as pd
 import typing as List
 
 
+
 def build_strategy_chart(df: pd.DataFrame) -> alt.Chart:
     df2 = df.rename(columns={
-        "cost":  "Optimized cost (USD)",
-        "co2":   "Optimized CO₂ (t)",
+        "cost": "Optimized cost (USD)",
+        "co2":  "Optimized CO₂ (t)",
     })
 
     folded = (
         alt.Chart(df2)
         .transform_fold(
             ["Optimized cost (USD)", "Optimized CO₂ (t)"],
-            as_=["metric", "value"]
+            as_=["metric", "value"],
         )
         .mark_bar()
         .encode(
-            x=alt.X(
-                "strategy:N",
-                title=None,               
-                axis=alt.Axis(labels=True, ticks=False)
-            ),
+            x=alt.X("strategy:N", title="Strategy"),
             y=alt.Y("value:Q", title=None),
-            color=alt.Color(
-                "strategy:N",
-                legend=None             
-            ),
+            color=alt.Color("strategy:N", legend=None),
         )
         .properties(width=180)
     )
@@ -40,5 +34,3 @@ def build_strategy_chart(df: pd.DataFrame) -> alt.Chart:
         .resolve_scale(y="independent")
     )
     return chart
-
-
