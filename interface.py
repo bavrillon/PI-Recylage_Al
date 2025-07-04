@@ -1,4 +1,4 @@
-#TRUCS A FAIRE : excels + pb modifier db (raw_materials) + pb pour disabled data_editor (marche pas) + améliorer output (faire un joli tableau)
+#TRUCS A FAIRE : excels + améliorer output (faire un joli tableau)
 
 from os import path
 import streamlit as st
@@ -96,7 +96,7 @@ else :
 
     if st.checkbox('Show alloys from chosen site'):
         alloys_from_site = alloys_from_site.drop(['composition_id'], axis = 1)
-        edited_alloys = st.data_editor(alloys_from_site, num_rows="dynamic", disabled=("alloy_id"))
+        edited_alloys = st.data_editor(alloys_from_site, num_rows="dynamic", disabled=["alloy_id"])
 
         if st.button("Save modifications to database"):
             for _, row in edited_alloys.iterrows():
@@ -167,8 +167,80 @@ else :
 
     if st.checkbox('Show raw materials'):
         raw = conn.query("SELECT * FROM raw_material r JOIN composition c ON r.composition_id = c.composition_id ")
-        edited_raw_materials = st.data_editor(raw.drop(['composition_id'], axis = 1), num_rows="dynamic", disabled=("raw_material_id"))
-        #ENREGISTRER MODIFS !!!!!!!!!!!
+        edited_raw_materials = st.data_editor(raw.drop(['composition_id'], axis = 1), num_rows="dynamic", disabled=["raw_material_id"])
+        if st.button("Save modifications to database"):
+            for _, row in edited_raw_materials.iterrows():
+
+                if pd.isna(row["raw_material_id"]): #if it is a new material
+                    new_material_id = "R" + str(conn.query("SELECT COUNT(*) FROM raw_material").iloc[0,0] + 1)
+                    new_compo_id = "C" + str(conn.query("SELECT COUNT(*) FROM composition").iloc[0,0] + 1)
+                    insert_compo = text("""INSERT INTO composition (composition_id, Si, Fe, Cu, Mn, Mg, Cr, Zn, Ti)
+                                        VALUES (:composition_id, :Si, :Fe, :Cu, :Mn, :Mg, :Cr, :Zn, :Ti)""")
+                    with conn.session as session:
+                        session.execute(insert_compo,
+                                        dict(composition_id=new_compo_id,
+                                             Si=row["Si"],
+                                             Fe=row["Fe"],
+                                             Cu=row["Cu"],
+                                             Mn=row["Mn"],
+                                             Mg=row["Mg"],
+                                             Cr=row["Cr"],
+                                             Zn=row["Zn"],
+                                             Ti=row["Ti"]))
+                        session.commit()
+                    insert_material = text("""INSERT INTO raw_material (raw_material_id, name, composition_id, cost_per_t, premium, currency, t_CO2_per_t)
+                                        VALUES (:raw_material_id, :name, :composition_id, :cost_per_t, :premium, :currency, :t_CO2_per_t)""")
+                    with conn.session as session:
+                        session.execute(
+                            insert_material,
+                            dict(raw_material_id=new_material_id,
+                                name=row["name"],
+                                composition_id=new_compo_id,
+                                cost_per_t=row["cost_per_t"],
+                                premium=row['premium'],
+                                currency=row['currency'],
+                                t_CO2_per_t=row['t_CO2_per_t']))
+                        session.commit()
+
+                else: #if the material already exists but was modified
+                    material_id = row['material_id']
+                    query_compo = text("SELECT composition_id FROM raw_material WHERE raw_material_id = :material_id")
+                    with conn.session as session:
+                        composition_id = session.execute(query_compo, {"material_id": material_id}).first()[0]
+
+                    update_material = text("UPDATE raw_material SET name=:name, cost_per_t=:cost_per_t, premium=:premium, currency=:currency, t_CO2_per_t=:t_CO2_per_t WHERE raw_material_id = :material_id")
+                    with conn.session as session:
+                        session.execute(update_material,dict(
+                            name = row["name"],
+                            cost_per_t = row["cost_per_t"],
+                            premium = row['premium'],
+                            currency = row['currency'],
+                            t_CO2_per_t = row['t_CO2_per_t'],
+                            material_id = material_id))
+                        session.commit()
+                    update_composition = text("""UPDATE composition SET
+                            Si = :si,
+                            Fe = :fe,
+                            Cu = :cu,
+                            Mn = :mn,
+                            Mg = :mg,
+                            Cr = :cr,
+                            Zn = :zn,
+                            Ti = :ti
+                        WHERE composition_id = :composition_id""")
+                    with conn.session as session:
+                        session.execute(update_composition, dict(
+                                si = row["Si"],
+                                fe = row["Fe"],
+                                cu = row["Cu"],
+                                mn = row["Mn"],
+                                mg = row["Mg"],
+                                cr = row["Cr"],
+                                zn = row["Zn"],
+                                ti = row["Ti"],
+                                composition_id = composition_id))
+                        session.commit()
+
     if st.checkbox('Show recycling cost from chosen site'):
         edited_recycling_costs = st.data_editor(conn.query(f"SELECT * FROM recycling_cost WHERE site_code = '{ID_SITE}'"))
     if st.checkbox('Show chosen currency'):
