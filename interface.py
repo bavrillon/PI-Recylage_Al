@@ -98,6 +98,8 @@ else :
         alloys_from_site = alloys_from_site.drop(['composition_id'], axis = 1)
         edited_alloys = st.data_editor(alloys_from_site, num_rows="dynamic", disabled=["alloy_id"])
 
+        st.write('(the column id cannot be modified)')
+
         if st.button("Save modifications to database"):
             for _, row in edited_alloys.iterrows():
 
@@ -168,6 +170,8 @@ else :
     if st.checkbox('Show raw materials'):
         raw = conn.query("SELECT * FROM raw_material r JOIN composition c ON r.composition_id = c.composition_id ")
         edited_raw_materials = st.data_editor(raw.drop(['composition_id'], axis = 1), num_rows="dynamic", disabled=["raw_material_id"])
+        st.write('(the column id cannot be modified)')
+
         if st.button("Save modifications to database"):
             for _, row in edited_raw_materials.iterrows():
 
@@ -243,10 +247,13 @@ else :
 
     if st.checkbox('Show recycling cost from chosen site'):
         edited_recycling_costs = st.data_editor(conn.query(f"SELECT * FROM recycling_cost WHERE site_code = '{ID_SITE}'"))
+        st.write('(data cannot be modified)')
     if st.checkbox('Show chosen currency'):
         edited_currencies = st.data_editor(conn.query(f"SELECT * FROM currency WHERE name = '{currency}'"))
+        st.write('(data cannot be modified)')
     if st.checkbox('Show chosen site'):
         edited_sites = st.data_editor(conn.query(f"SELECT * FROM site WHERE site_code = '{ID_SITE}'"))
+        st.write('(data cannot be modified)')
 
     
     elements = db.get_raw_materials_name()
