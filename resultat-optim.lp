@@ -13,16 +13,16 @@ _C1: calculed_composition_R1 + calculed_composition_R10
  = 1
 _C2: 0.99 calculed_composition_R1 + 0.0002 calculed_composition_R10
  + 0.02 calculed_composition_R2 + 0.01 calculed_composition_R6
- + 0.001 calculed_composition_R9 = 0.003
+ + 0.001 calculed_composition_R9 + 0.275 calculed_composition_S0 = 0.0025
 _C3: 0.01 calculed_composition_R1 + 0.0002 calculed_composition_R10
  + 0.98 calculed_composition_R2 + 0.01 calculed_composition_R7
- + 0.002 calculed_composition_R9 = 0.007
-_C4: calculed_composition_R3 + 0.1 calculed_composition_S0 = 0.0025
-_C5: 0.98 calculed_composition_R4 = 0.013
-_C6: 0.99 calculed_composition_R5 = 0.01
-_C7: 0.99 calculed_composition_R6 = 0.0005
-_C8: 0.98 calculed_composition_R7 = 0.0025
-_C9: 0.99 calculed_composition_R8 = 0.0005
+ + 0.002 calculed_composition_R9 + 0.425 calculed_composition_S0 = 0.004
+_C4: calculed_composition_R3 + 0.075 calculed_composition_S0 = 0.0005
+_C5: 0.98 calculed_composition_R4 + 0.075 calculed_composition_S0 = 0.0005
+_C6: 0.99 calculed_composition_R5 + 0.075 calculed_composition_S0 = 0.0005
+_C7: 0.99 calculed_composition_R6 + 0.075 calculed_composition_S0 = 0.0005
+_C8: 0.98 calculed_composition_R7 + 0.075 calculed_composition_S0 = 0.0005
+_C9: 0.99 calculed_composition_R8 + 0.055 calculed_composition_S0 = 0.0003
 Bounds
  calculed_composition_R1 <= 1
  calculed_composition_R10 <= 1
