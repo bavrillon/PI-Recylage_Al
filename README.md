@@ -37,6 +37,22 @@ For each alloy, the application performs all relevant optimizations and allows t
 Applicatif/Exel
 
 ---
+### Data Model Conventions
+
+In our SQLite schema, all primary-key values follow a clear naming convention:
+
+- **site** (`site_code`): 3‐letter codes : 
+  `PAR`, `GEN`, `NYC`  
+- **alloy** (`alloy_id`): starts with `A` + integer :
+  `A1`, `A2`, `A3`, …  
+- **composition** (`composition_id`): starts with `C` + integer : 
+  `C1`, `C2`, `C3`, …  
+- **raw_material** (`raw_material_id`): starts with `R` + integer :
+  `R1`, `R2`, `R3`, …  
+- **scrap** (`scrap_id`): starts with `S` + integer, e.g.  
+  `S0`, `S1`, `S2`, …
+
+This makes it easy to trace each record back to its source table and to avoid ID collisions when joining tables.
 
 ### Output Data
 Applicatif/Exel
