@@ -39,7 +39,7 @@ optimised_co2_no_scrap = db.optimise_co2_without_scrap(ID_SITE, ID_ALLOY)
 
 cost_with = db.get_total_cost(comp_with, ID_SITE, ID_SCRAP)[-1]
 co2_with = db.get_total_co2(comp_with)[-1]
-scrap_with = comp_with[-1] * 100  # convert fraction to %
+scrap_with = comp_with[-1] * 100  
 
 cost_without = db.get_total_cost(comp_without, ID_SITE)[-1]
 co2_without = db.get_total_co2(comp_without)[-1]
